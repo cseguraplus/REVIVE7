@@ -1,0 +1,44 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 0 * * 1",
+      "one_time_date": null,
+      "timezone": "America/Mexico_City",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Weekly Ensure Generations",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "weekly_ensure_generations",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "ensure_generations": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "ensureUpcomingGenerations",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Generar pr\u00f3ximas generaciones"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Genera pr\u00f3ximas generaciones cada lunes para mantener el calendario de inscripciones"
+}

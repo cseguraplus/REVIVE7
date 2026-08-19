@@ -1,0 +1,100 @@
+{
+  "name": "Inventory",
+  "type": "object",
+  "properties": {
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad / Kit",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "kit_id": {
+      "type": "string",
+      "title": "Kit ID (legacy)"
+    },
+    "kit_name": {
+      "type": "string",
+      "title": "Nombre del kit"
+    },
+    "available": {
+      "type": "number",
+      "title": "Disponible",
+      "default": 0
+    },
+    "reserved": {
+      "type": "number",
+      "title": "Reservado",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado de inventario",
+      "enum": [
+        "in_stock",
+        "low_stock",
+        "out_of_stock"
+      ],
+      "default": "in_stock"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "aliada"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "intensity"
+  ]
+}

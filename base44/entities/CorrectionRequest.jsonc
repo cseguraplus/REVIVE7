@@ -1,0 +1,107 @@
+{
+  "name": "CorrectionRequest",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "title": "Tipo de entidad"
+    },
+    "entity_id": {
+      "type": "string",
+      "title": "ID de entidad"
+    },
+    "field": {
+      "type": "string",
+      "title": "Campo a corregir"
+    },
+    "old_value": {
+      "type": "string",
+      "title": "Valor actual"
+    },
+    "new_value": {
+      "type": "string",
+      "title": "Valor correcto"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Raz\u00f3n"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "requested_by": {
+      "type": "string",
+      "title": "Solicitado por (User ID)"
+    },
+    "resolved_by": {
+      "type": "string",
+      "title": "Resuelto por (User ID)"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de resoluci\u00f3n"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "field"
+  ]
+}

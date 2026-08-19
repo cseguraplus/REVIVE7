@@ -1,0 +1,44 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 1 * * *",
+      "one_time_date": null,
+      "timezone": "America/Mexico_City",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Daily Sync Client Statuses",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_sync_client_statuses",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync_statuses": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncClientStatuses",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sincronizar estados de clientas"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Sincroniza el estado de clientas seg\u00fan avance del programa cada d\u00eda"
+}

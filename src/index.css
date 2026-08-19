@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Lato:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --revive-green: #A5C223;
+    --revive-dark: #103439;
+    --revive-dark-mid: #1a4a50;
+    --revive-green-light: #c8dc5a;
+    --revive-green-pale: #eef6c8;
+    --revive-cream: #f8fdf0;
+
+    --background: 0 0% 99%;
+    --foreground: 185 56% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 185 56% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 185 56% 14%;
+    --primary: 74 70% 45%;
+    --primary-foreground: 185 56% 10%;
+    --secondary: 185 56% 14%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 74 30% 94%;
+    --muted-foreground: 185 30% 40%;
+    --accent: 74 70% 45%;
+    --accent-foreground: 185 56% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 74 20% 88%;
+    --input: 74 20% 88%;
+    --ring: 74 70% 45%;
+    --chart-1: 74 70% 45%;
+    --chart-2: 185 56% 14%;
+    --chart-3: 185 40% 35%;
+    --chart-4: 74 50% 60%;
+    --chart-5: 185 30% 55%;
+    --radius: 0.75rem;
+    --font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Lato', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, monospace;
+    --sidebar-background: 185 56% 14%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 74 70% 45%;
+    --sidebar-primary-foreground: 185 56% 10%;
+    --sidebar-accent: 185 40% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 185 30% 22%;
+    --sidebar-ring: 74 70% 45%;
+  }
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground font-body; }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f0f4e8; }
+::-webkit-scrollbar-thumb { background: #A5C223; border-radius: 4px; }
+::selection { background: rgba(165,194,35,0.25); }

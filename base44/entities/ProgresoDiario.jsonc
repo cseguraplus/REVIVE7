@@ -1,0 +1,77 @@
+{
+  "name": "ProgresoDiario",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta"
+    },
+    "dia_numero": {
+      "type": "number",
+      "title": "D\u00eda del programa"
+    },
+    "completado": {
+      "type": "boolean",
+      "title": "Completado",
+      "default": false
+    },
+    "fecha_completado": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de completado"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "clienta_id",
+    "dia_numero"
+  ]
+}

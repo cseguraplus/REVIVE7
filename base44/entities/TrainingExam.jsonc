@@ -1,0 +1,45 @@
+{
+  "name": "TrainingExam",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "T\u00edtulo de la evaluaci\u00f3n"
+    },
+    "questions_json": {
+      "type": "string",
+      "title": "Preguntas (JSON: [{question, options[], correct_index}])"
+    },
+    "passing_score": {
+      "type": "number",
+      "title": "Puntaje m\u00ednimo para aprobar (%)",
+      "default": 70
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Activa",
+      "default": true
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

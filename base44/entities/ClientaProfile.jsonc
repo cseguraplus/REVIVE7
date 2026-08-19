@@ -1,0 +1,141 @@
+{
+  "name": "ClientaProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "Usuario (User ID)"
+    },
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada asignada (AliadaProfile ID)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "pending",
+        "active",
+        "paused",
+        "completed",
+        "dropped"
+      ],
+      "default": "pending"
+    },
+    "safety_flag": {
+      "type": "boolean",
+      "title": "Bandera de seguridad",
+      "default": false
+    },
+    "start_goal": {
+      "type": "string",
+      "title": "Objetivo inicial"
+    },
+    "share_emotional_default": {
+      "type": "boolean",
+      "title": "Compartir estado emocional con aliada por defecto",
+      "default": true
+    },
+    "prep_checklist_json": {
+      "type": "string",
+      "title": "Checklist de preparaci\u00f3n (JSON)"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "terms_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Aceptaci\u00f3n de t\u00e9rminos"
+    },
+    "privacy_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Aceptaci\u00f3n de privacidad"
+    },
+    "referral_code": {
+      "type": "string",
+      "title": "C\u00f3digo de referido (Aliada)"
+    },
+    "intensity_choice": {
+      "type": "string",
+      "title": "Intensidad elegida para la pr\u00f3xima semana",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "SalesApplicant",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "title": "Nombre completo"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "years_experience": {
+      "type": "string",
+      "title": "A\u00f1os de experiencia en ventas",
+      "enum": [
+        "0-1",
+        "2-3",
+        "4-5",
+        "6+"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "nuevo",
+        "contactado",
+        "en_proceso",
+        "aceptado",
+        "rechazado"
+      ],
+      "default": "nuevo"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "phone"
+  ]
+}

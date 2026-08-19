@@ -1,0 +1,76 @@
+{
+  "name": "TrainingModule",
+  "type": "object",
+  "properties": {
+    "module_key": {
+      "type": "string",
+      "title": "Clave del m\u00f3dulo"
+    },
+    "title": {
+      "type": "string",
+      "title": "T\u00edtulo"
+    },
+    "description": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    },
+    "content_url": {
+      "type": "string",
+      "title": "URL de contenido / video"
+    },
+    "sort_order": {
+      "type": "number",
+      "title": "Orden",
+      "default": 0
+    },
+    "required_for_roles": {
+      "type": "string",
+      "title": "Roles que deben completarlo (csv)"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Activo",
+      "default": true
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "module_key",
+    "title"
+  ]
+}

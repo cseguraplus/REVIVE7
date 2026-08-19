@@ -1,0 +1,94 @@
+{
+  "name": "TrainingExamAttempt",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "Aliada (User ID)"
+    },
+    "exam_id": {
+      "type": "string",
+      "title": "TrainingExam ID"
+    },
+    "score": {
+      "type": "number",
+      "title": "Puntaje (%)"
+    },
+    "passed": {
+      "type": "boolean",
+      "title": "Aprobada",
+      "default": false
+    },
+    "answers_json": {
+      "type": "string",
+      "title": "Respuestas (JSON)"
+    },
+    "taken_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "aliada"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "user_id",
+    "exam_id",
+    "score"
+  ]
+}

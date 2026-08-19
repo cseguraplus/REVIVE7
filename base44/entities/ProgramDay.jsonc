@@ -1,0 +1,157 @@
+{
+  "name": "ProgramDay",
+  "type": "object",
+  "properties": {
+    "day_number": {
+      "type": "number",
+      "title": "N\u00famero de d\u00eda (0-90)"
+    },
+    "week_number": {
+      "type": "number",
+      "title": "N\u00famero de semana (0-13). 0=Bienvenida, 1-12=programa, 13=Consolida 6"
+    },
+    "day_of_week": {
+      "type": "string",
+      "title": "D\u00eda de la semana",
+      "enum": [
+        "lunes",
+        "martes",
+        "mi\u00e9rcoles",
+        "jueves",
+        "viernes",
+        "s\u00e1bado",
+        "domingo"
+      ]
+    },
+    "day_type": {
+      "type": "string",
+      "title": "Tipo de d\u00eda",
+      "enum": [
+        "standard",
+        "rest",
+        "checkpoint",
+        "intro",
+        "welcome",
+        "daily",
+        "consolida"
+      ],
+      "default": "standard"
+    },
+    "title": {
+      "type": "string",
+      "title": "T\u00edtulo del d\u00eda"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Resumen"
+    },
+    "vimeo_url": {
+      "type": "string",
+      "title": "Enlace completo de Vimeo (se conserva)"
+    },
+    "vimeo_video_id": {
+      "type": "string",
+      "title": "ID de video Vimeo (parseado)"
+    },
+    "vimeo_privacy_hash": {
+      "type": "string",
+      "title": "Hash de privacidad Vimeo (parseado)"
+    },
+    "required_percent": {
+      "type": "number",
+      "title": "Porcentaje requerido de visualizaci\u00f3n",
+      "default": 80
+    },
+    "publish_status": {
+      "type": "string",
+      "title": "Estado de publicaci\u00f3n",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "draft"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.publish_status": "published"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "day_number",
+    "week_number",
+    "title"
+  ]
+}

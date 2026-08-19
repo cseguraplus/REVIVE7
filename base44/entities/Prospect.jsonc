@@ -1,0 +1,127 @@
+{
+  "name": "Prospect",
+  "type": "object",
+  "properties": {
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada (AliadaProfile ID)"
+    },
+    "nombre": {
+      "type": "string",
+      "title": "Nombre completo"
+    },
+    "telefono": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "origen": {
+      "type": "string",
+      "title": "Origen"
+    },
+    "interes": {
+      "type": "string",
+      "title": "Inter\u00e9s"
+    },
+    "next_action": {
+      "type": "string",
+      "title": "Pr\u00f3xima acci\u00f3n"
+    },
+    "next_action_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de pr\u00f3xima acci\u00f3n"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "nuevo",
+        "contactado",
+        "interesado",
+        "pendiente",
+        "compra_realizada",
+        "no_interesado",
+        "seguimiento_futuro"
+      ],
+      "default": "nuevo"
+    },
+    "nota": {
+      "type": "string",
+      "title": "Nota"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "aliada"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "nombre",
+    "telefono",
+    "status"
+  ]
+}

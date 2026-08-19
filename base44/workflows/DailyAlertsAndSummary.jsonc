@@ -1,0 +1,59 @@
+{
+  "name": "Alertas y resumen diario",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 8 * * *",
+      "one_time_date": null,
+      "timezone": "America/Mexico_City",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_alerts_summary",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "generate_alerts": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "generateDailyAlerts",
+            "args": {}
+          },
+          "then": "send_summaries",
+          "x-base44": {
+            "title": "Generar alertas diarias",
+            "description": "D\u00eda anterior incompleto e inactividad"
+          }
+        }
+      },
+      {
+        "send_summaries": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendAliadaDailySummary",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Enviar resumen diario",
+            "description": "Correo a aliadas"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Genera alertas diarias (d\u00eda anterior incompleto, inactividad de 2 d\u00edas) y env\u00eda el resumen por correo a cada aliada con el n\u00famero de acciones pendientes y un enlace a /aliada/inicio."
+}

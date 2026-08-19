@@ -1,0 +1,114 @@
+{
+  "name": "Generation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Nombre de la generaci\u00f3n"
+    },
+    "week_index": {
+      "type": "number",
+      "title": "\u00cdndice de semana (orden)"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Lunes de inicio"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Domingo de fin"
+    },
+    "enrollment_cutoff": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Cierre de inscripci\u00f3n (domingo 20:00 America/Mexico_City)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "draft",
+        "open",
+        "closed",
+        "archived"
+      ],
+      "default": "open"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        },
+        {
+          "data.status": {
+            "$in": [
+              "open",
+              "closed"
+            ]
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

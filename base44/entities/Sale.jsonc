@@ -1,0 +1,195 @@
+{
+  "name": "Sale",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada (AliadaProfile ID)"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "title": "Enrollment (ProgramJourney) ID"
+    },
+    "weekly_cycle_id": {
+      "type": "string",
+      "title": "WeeklyCycle creado"
+    },
+    "generation_id": {
+      "type": "string",
+      "title": "Generaci\u00f3n (Generation ID)"
+    },
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad / Kit",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "kit_id": {
+      "type": "string",
+      "title": "Kit ID (legacy)"
+    },
+    "kit_name": {
+      "type": "string",
+      "title": "Nombre del Kit"
+    },
+    "official_price": {
+      "type": "number",
+      "title": "Precio oficial"
+    },
+    "amount": {
+      "type": "number",
+      "title": "Monto final"
+    },
+    "discount_amount": {
+      "type": "number",
+      "title": "Descuento",
+      "default": 0
+    },
+    "discount_reason": {
+      "type": "string",
+      "title": "Motivo del descuento"
+    },
+    "payment_method": {
+      "type": "string",
+      "title": "M\u00e9todo de pago",
+      "enum": [
+        "efectivo",
+        "transferencia",
+        "tarjeta",
+        "otro"
+      ]
+    },
+    "payment_status": {
+      "type": "string",
+      "title": "Estado de pago",
+      "enum": [
+        "pending",
+        "partial",
+        "paid",
+        "cancelled",
+        "authorized_complimentary"
+      ],
+      "default": "pending"
+    },
+    "delivery_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de entrega"
+    },
+    "sale_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de venta"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado de la venta (no se elimina)",
+      "enum": [
+        "pending",
+        "active",
+        "cancelled",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "exception_authorized": {
+      "type": "boolean",
+      "title": "Excepci\u00f3n de inventario autorizada",
+      "default": false
+    },
+    "exception_reason": {
+      "type": "string",
+      "title": "Motivo de excepci\u00f3n"
+    },
+    "activated": {
+      "type": "boolean",
+      "title": "Activ\u00f3 el programa",
+      "default": false
+    },
+    "related_movement_id": {
+      "type": "string",
+      "title": "InventoryMovement de venta"
+    },
+    "reversal_movement_id": {
+      "type": "string",
+      "title": "InventoryMovement de reverso"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "aliada"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "clienta_id",
+    "intensity",
+    "amount",
+    "payment_status"
+  ]
+}

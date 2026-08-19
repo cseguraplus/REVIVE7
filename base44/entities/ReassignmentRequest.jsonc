@@ -1,0 +1,99 @@
+{
+  "name": "ReassignmentRequest",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "from_aliada_id": {
+      "type": "string",
+      "title": "Aliada actual (AliadaProfile ID)"
+    },
+    "to_aliada_id": {
+      "type": "string",
+      "title": "Aliada nueva (AliadaProfile ID)"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Raz\u00f3n"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "requested_by": {
+      "type": "string",
+      "title": "Solicitado por (User ID)"
+    },
+    "resolved_by": {
+      "type": "string",
+      "title": "Resuelto por (User ID)"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de resoluci\u00f3n"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "clienta_id",
+    "from_aliada_id",
+    "to_aliada_id"
+  ]
+}

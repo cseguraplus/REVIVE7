@@ -1,0 +1,90 @@
+{
+  "name": "Kit",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre del kit"
+    },
+    "descripcion": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    },
+    "semana": {
+      "type": "number",
+      "title": "Semana del programa (1-13)"
+    },
+    "precio": {
+      "type": "number",
+      "title": "Precio"
+    },
+    "dias_que_desbloquea": {
+      "type": "number",
+      "title": "D\u00edas que desbloquea",
+      "default": 7
+    },
+    "activo": {
+      "type": "boolean",
+      "title": "Activo",
+      "default": true
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "nombre",
+    "semana"
+  ]
+}

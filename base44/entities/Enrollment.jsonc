@@ -1,0 +1,122 @@
+{
+  "name": "Enrollment",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada (AliadaProfile ID)"
+    },
+    "generation_id": {
+      "type": "string",
+      "title": "Generaci\u00f3n (Generation ID)"
+    },
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad / Kit",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "active",
+        "completed",
+        "paused",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de inicio"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de fin"
+    },
+    "override_day_number": {
+      "type": "number",
+      "title": "Override de d\u00eda (pruebas)"
+    },
+    "override_reason": {
+      "type": "string",
+      "title": "Motivo del override"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.clienta_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "clienta_id",
+    "generation_id",
+    "intensity"
+  ]
+}

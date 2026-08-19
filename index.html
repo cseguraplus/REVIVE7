@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a4400912c7465eb3d882f4c/7874b7b43_Logorevive7BySerVivo.png" />
+    <link rel="apple-touch-icon" href="https://media.base44.com/images/public/6a4400912c7465eb3d882f4c/7874b7b43_Logorevive7BySerVivo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <title>Revive 7 by Ser Vivo | Programa de Transformación de 90 Días</title>
+    <meta name="description" content="Revive 7 es un programa de transformación personal de 90 días que combina contenido diario, kits semanales y acompañamiento constante para revitalizar tu vida." />
+    <meta name="keywords" content="Revive 7, Ser Vivo, transformación personal, programa 90 días, bienestar, revitalización, kit semanal, desarrollo personal" />
+    <meta name="author" content="Ser Vivo" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://revive7.mx" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://revive7.mx" />
+    <meta property="og:title" content="Revive 7 by Ser Vivo | Programa de Transformación de 90 Días" />
+    <meta property="og:description" content="Programa de transformación personal de 90 días con contenido diario, kits semanales y acompañamiento constante. Revitaliza tu vida con Revive 7." />
+    <meta property="og:image" content="https://media.base44.com/images/public/6a4400912c7465eb3d882f4c/7874b7b43_Logorevive7BySerVivo.png" />
+    <meta property="og:site_name" content="Revive 7 by Ser Vivo" />
+    <meta property="og:locale" content="es_MX" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Revive 7 by Ser Vivo | Programa de Transformación de 90 Días" />
+    <meta name="twitter:description" content="Programa de transformación personal de 90 días con contenido diario, kits semanales y acompañamiento constante." />
+    <meta name="twitter:image" content="https://media.base44.com/images/public/6a4400912c7465eb3d882f4c/7874b7b43_Logorevive7BySerVivo.png" />
+
+    <!-- Indexación por dominio: la app (apprevive7) NO debe indexarse; las landings sí. -->
+    <script>
+      (function () {
+        try {
+          var host = (location.hostname || '').toLowerCase();
+          var robots = document.querySelector('meta[name="robots"]');
+          if (host.indexOf('apprevive7') !== -1) {
+            if (robots) robots.setAttribute('content', 'noindex, nofollow, noarchive');
+            else { var m = document.createElement('meta'); m.name = 'robots'; m.content = 'noindex, nofollow, noarchive'; document.head.appendChild(m); }
+            var can = document.querySelector('link[rel="canonical"]'); if (can) can.setAttribute('href', 'https://apprevive7.mx' + location.pathname);
+            var og = document.querySelector('meta[property="og:url"]'); if (og) og.setAttribute('content', 'https://apprevive7.mx' + location.pathname);
+          } else if (host.indexOf('aliadaservivo') !== -1) {
+            var base = 'https://aliadaservivo.com' + location.pathname;
+            var can = document.querySelector('link[rel="canonical"]'); if (can) can.setAttribute('href', base);
+            var og = document.querySelector('meta[property="og:url"]'); if (og) og.setAttribute('content', base);
+          }
+        } catch (e) { /* noop */ }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

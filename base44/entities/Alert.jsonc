@@ -1,0 +1,128 @@
+{
+  "name": "Alert",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "title": "Tipo de alerta",
+      "enum": [
+        "no_activity",
+        "low_completion",
+        "safety",
+        "at_risk",
+        "onboarding",
+        "incomplete_previous_day",
+        "con_dificultad",
+        "week_ending_soon",
+        "week_ended_no_renewal",
+        "prep_incomplete",
+        "low_inventory"
+      ]
+    },
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada (AliadaProfile ID)"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Raz\u00f3n"
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severidad",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "low"
+    },
+    "cycle_key": {
+      "type": "string",
+      "title": "Clave de ciclo (dedupe: tipo+clienta+ciclo)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "open",
+        "acknowledged",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de creaci\u00f3n"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.clienta_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "type"
+  ]
+}

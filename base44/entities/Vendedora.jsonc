@@ -1,0 +1,86 @@
+{
+  "name": "Vendedora",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "ID Usuario (User)"
+    },
+    "nombre": {
+      "type": "string",
+      "title": "Nombre completo"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+    },
+    "telefono": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "codigo_aliada": {
+      "type": "string",
+      "title": "C\u00f3digo aliada"
+    },
+    "activa": {
+      "type": "boolean",
+      "title": "Activa",
+      "default": true
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "nombre",
+    "email",
+    "codigo_aliada"
+  ]
+}

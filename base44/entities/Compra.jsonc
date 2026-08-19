@@ -1,0 +1,80 @@
+{
+  "name": "Compra",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta"
+    },
+    "vendedora_id": {
+      "type": "string",
+      "title": "Vendedora"
+    },
+    "kit_id": {
+      "type": "string",
+      "title": "Kit comprado"
+    },
+    "kit_nombre": {
+      "type": "string",
+      "title": "Nombre del kit"
+    },
+    "semana_numero": {
+      "type": "number",
+      "title": "Semana n\u00famero"
+    },
+    "dias_desbloqueados": {
+      "type": "number",
+      "title": "D\u00edas desbloqueados por esta compra",
+      "default": 7
+    },
+    "monto": {
+      "type": "number",
+      "title": "Monto"
+    },
+    "fecha_compra": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de compra"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "clienta_id",
+    "fecha_compra"
+  ]
+}

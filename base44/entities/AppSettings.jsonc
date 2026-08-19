@@ -1,0 +1,76 @@
+{
+  "name": "AppSettings",
+  "type": "object",
+  "properties": {
+    "timezone": {
+      "type": "string",
+      "title": "Zona horaria",
+      "default": "America/Mexico_City"
+    },
+    "weekly_cutoff": {
+      "type": "string",
+      "title": "D\u00eda/hora de corte semanal",
+      "default": "domingo 20:00"
+    },
+    "required_video_percent": {
+      "type": "number",
+      "title": "Porcentaje m\u00ednimo de video requerido",
+      "default": 80
+    },
+    "support_email": {
+      "type": "string",
+      "format": "email",
+      "title": "Correo de soporte"
+    },
+    "current_terms_version": {
+      "type": "string",
+      "title": "Versi\u00f3n vigente de t\u00e9rminos",
+      "default": "1.0"
+    },
+    "current_privacy_version": {
+      "type": "string",
+      "title": "Versi\u00f3n vigente de privacidad",
+      "default": "1.0"
+    },
+    "test_mode": {
+      "type": "boolean",
+      "title": "Modo de prueba (legacy \u2014 usar TestControl por cuenta)",
+      "default": false
+    },
+    "simulated_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora simulada (legacy \u2014 usar TestControl)"
+    },
+    "active_generation_id": {
+      "type": "string",
+      "title": "Generaci\u00f3n activa (ID)"
+    },
+    "daily_summary_enabled": {
+      "type": "boolean",
+      "title": "Env\u00edo de resumen diario por correo",
+      "default": false
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "timezone"
+  ]
+}

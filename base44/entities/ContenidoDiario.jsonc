@@ -1,0 +1,98 @@
+{
+  "name": "ContenidoDiario",
+  "type": "object",
+  "properties": {
+    "dia_numero": {
+      "type": "number",
+      "title": "D\u00eda del programa (1-90)"
+    },
+    "semana_numero": {
+      "type": "number",
+      "title": "Semana (1-13)"
+    },
+    "titulo": {
+      "type": "string",
+      "title": "T\u00edtulo del d\u00eda"
+    },
+    "video_url": {
+      "type": "string",
+      "title": "URL del video (~7 min)"
+    },
+    "video_thumbnail": {
+      "type": "string",
+      "title": "Thumbnail del video"
+    },
+    "texto_acompanamiento": {
+      "type": "string",
+      "title": "Texto de acompa\u00f1amiento"
+    },
+    "accion_diaria": {
+      "type": "string",
+      "title": "Acci\u00f3n diaria"
+    },
+    "activo": {
+      "type": "boolean",
+      "title": "Activo",
+      "default": true
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "contenidos"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "dia_numero",
+    "semana_numero",
+    "titulo"
+  ]
+}

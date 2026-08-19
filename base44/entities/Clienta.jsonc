@@ -1,0 +1,92 @@
+{
+  "name": "Clienta",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "ID Usuario (User)"
+    },
+    "nombre": {
+      "type": "string",
+      "title": "Nombre completo"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+    },
+    "telefono": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "vendedora_id": {
+      "type": "string",
+      "title": "Vendedora asignada"
+    },
+    "codigo_aliada": {
+      "type": "string",
+      "title": "C\u00f3digo aliada de origen"
+    },
+    "fecha_inicio": {
+      "type": "string",
+      "format": "date",
+      "title": "Fecha de inicio del programa"
+    },
+    "dias_desbloqueados": {
+      "type": "number",
+      "title": "D\u00edas desbloqueados (total)",
+      "default": 0
+    },
+    "estado": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "activa",
+        "pendiente_recompra",
+        "vencida",
+        "completada"
+      ],
+      "default": "activa"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": true,
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "nombre",
+    "email"
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "name": "SafetyScreening",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "journey_id": {
+      "type": "string",
+      "title": "ProgramJourney (Enrollment ID)"
+    },
+    "questionnaire_json": {
+      "type": "string",
+      "title": "Respuestas del cuestionario (JSON)"
+    },
+    "risk_level": {
+      "type": "string",
+      "title": "Nivel preventivo (no diagn\u00f3stico m\u00e9dico)",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "none"
+    },
+    "alert_id": {
+      "type": "string",
+      "title": "Alerta preventiva generada (Alert ID)"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Revisado por (User ID)"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de revisi\u00f3n"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notas (no diagn\u00f3stico m\u00e9dico)"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.clienta_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "clienta"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "clienta_id"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "name": "WeeklyMetrics",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "title": "Enrollment ID"
+    },
+    "capture_type": {
+      "type": "string",
+      "title": "Tipo de captura",
+      "enum": [
+        "initial",
+        "weekly",
+        "final"
+      ]
+    },
+    "weight": {
+      "type": "number",
+      "title": "Peso (kg)"
+    },
+    "waist": {
+      "type": "number",
+      "title": "Cintura (cm)"
+    },
+    "energy": {
+      "type": "number",
+      "title": "Energ\u00eda (1-10)"
+    },
+    "sleep": {
+      "type": "number",
+      "title": "Sue\u00f1o (1-10)"
+    },
+    "digestion": {
+      "type": "number",
+      "title": "Digesti\u00f3n (1-10)"
+    },
+    "stress": {
+      "type": "number",
+      "title": "Estr\u00e9s (1-10)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "clienta"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.clienta_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.clienta_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "clienta_id",
+    "capture_type"
+  ]
+}

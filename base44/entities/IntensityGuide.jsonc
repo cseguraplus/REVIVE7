@@ -1,0 +1,76 @@
+{
+  "name": "IntensityGuide",
+  "type": "object",
+  "properties": {
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "title": "Nombre p\u00fablico"
+    },
+    "price": {
+      "type": "number",
+      "title": "Precio MXN"
+    },
+    "description": {
+      "type": "string",
+      "title": "Descripci\u00f3n"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instrucciones generales"
+    },
+    "daily_packs": {
+      "type": "string",
+      "title": "DailyPacks"
+    },
+    "general_recommendations": {
+      "type": "string",
+      "title": "Recomendaciones generales"
+    },
+    "preventive_notices": {
+      "type": "string",
+      "title": "Avisos preventivos"
+    },
+    "sort_order": {
+      "type": "number",
+      "title": "Orden",
+      "default": 0
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Activa",
+      "default": true
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "intensity",
+    "name",
+    "price"
+  ]
+}

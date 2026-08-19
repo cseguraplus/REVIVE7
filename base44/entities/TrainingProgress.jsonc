@@ -1,0 +1,95 @@
+{
+  "name": "TrainingProgress",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "Aliada (User ID)"
+    },
+    "module_key": {
+      "type": "string",
+      "title": "M\u00f3dulo"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "score": {
+      "type": "number",
+      "title": "Calificaci\u00f3n"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de completado"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "user_id",
+    "module_key"
+  ]
+}

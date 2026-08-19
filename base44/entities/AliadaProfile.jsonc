@@ -1,0 +1,107 @@
+{
+  "name": "AliadaProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "Usuario (User ID)"
+    },
+    "public_name": {
+      "type": "string",
+      "title": "Nombre p\u00fablico"
+    },
+    "whatsapp": {
+      "type": "string",
+      "title": "WhatsApp"
+    },
+    "aliada_code": {
+      "type": "string",
+      "title": "C\u00f3digo de aliada"
+    },
+    "referral_slug": {
+      "type": "string",
+      "title": "Slug de referido (URL)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado del perfil",
+      "enum": [
+        "pending_training",
+        "active",
+        "suspended",
+        "inactive"
+      ],
+      "default": "pending_training"
+    },
+    "training_status": {
+      "type": "string",
+      "title": "Estado de capacitaci\u00f3n",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "guidelines_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Aceptaci\u00f3n de lineamientos"
+    }
+  },
+  "rls": {
+    "read": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "user_id",
+    "aliada_code"
+  ]
+}

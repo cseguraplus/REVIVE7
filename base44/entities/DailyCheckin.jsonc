@@ -1,0 +1,188 @@
+{
+  "name": "DailyCheckin",
+  "type": "object",
+  "properties": {
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "title": "Enrollment ID"
+    },
+    "program_day_id": {
+      "type": "string",
+      "title": "ProgramDay ID"
+    },
+    "video_completed": {
+      "type": "boolean",
+      "title": "Video completado",
+      "default": false
+    },
+    "objective_video": {
+      "type": "boolean",
+      "title": "Objetivo: Ver video",
+      "default": false
+    },
+    "objective_dailypacks": {
+      "type": "boolean",
+      "title": "Objetivo: DailyPacks",
+      "default": false
+    },
+    "objective_hydration": {
+      "type": "boolean",
+      "title": "Objetivo: Hidrataci\u00f3n",
+      "default": false
+    },
+    "objective_nutrition": {
+      "type": "boolean",
+      "title": "Objetivo: Nutrici\u00f3n",
+      "default": false
+    },
+    "objective_movement": {
+      "type": "boolean",
+      "title": "Objetivo: Movimiento",
+      "default": false
+    },
+    "objective_rest": {
+      "type": "boolean",
+      "title": "Objetivo: Descanso",
+      "default": false
+    },
+    "emotional_state": {
+      "type": "string",
+      "title": "Estado emocional",
+      "enum": [
+        "great",
+        "good",
+        "neutral",
+        "low",
+        "bad"
+      ]
+    },
+    "emotional_comment": {
+      "type": "string",
+      "title": "Comentario emocional"
+    },
+    "share_with_aliada": {
+      "type": "boolean",
+      "title": "Compartir con aliada",
+      "default": true
+    },
+    "completed": {
+      "type": "boolean",
+      "title": "Check-in completado",
+      "default": false,
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de completado",
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "clienta"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.clienta_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.clienta_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "clienta_id",
+    "program_day_id"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "name": "WeeklyCycle",
+  "type": "object",
+  "properties": {
+    "journey_id": {
+      "type": "string",
+      "title": "ProgramJourney (Enrollment ID)"
+    },
+    "clienta_id": {
+      "type": "string",
+      "title": "Clienta (User ID)"
+    },
+    "week_number": {
+      "type": "number",
+      "title": "Semana (1-13)"
+    },
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad / Kit de la semana",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "sale_id": {
+      "type": "string",
+      "title": "Sale relacionada"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado",
+      "enum": [
+        "pending",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "unlock_start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Inicio de desbloqueo"
+    },
+    "unlock_end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Fin de desbloqueo"
+    },
+    "days_unlocked": {
+      "type": "number",
+      "title": "D\u00edas desbloqueados",
+      "default": 7
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "aliada"
+          }
+        },
+        {
+          "data.clienta_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "journey_id",
+    "clienta_id",
+    "week_number",
+    "intensity"
+  ]
+}

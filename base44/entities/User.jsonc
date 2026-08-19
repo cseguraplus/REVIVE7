@@ -1,0 +1,211 @@
+{
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "Rol a nivel plataforma (admin/user)",
+      "enum": [
+        "admin",
+        "user"
+      ]
+    },
+    "app_role": {
+      "type": "string",
+      "title": "Rol dentro de la app",
+      "description": "Rol funcional dentro del ecosistema Mi Revive 7",
+      "enum": [
+        "clienta",
+        "aliada",
+        "operaciones",
+        "contenidos",
+        "superadmin"
+      ],
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "phone": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "account_status": {
+      "type": "string",
+      "title": "Estado de cuenta",
+      "enum": [
+        "pending",
+        "active",
+        "suspended"
+      ],
+      "default": "pending",
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "onboarding_status": {
+      "type": "string",
+      "title": "Estado de onboarding",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started",
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "is_test_account": {
+      "type": "boolean",
+      "title": "Cuenta de prueba (puede usar fecha simulada individual)",
+      "default": false,
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "\u00daltima actividad",
+      "rls": {
+        "update": {
+          "$or": [
+            {
+              "user_condition": {
+                "data.app_role": "superadmin"
+              }
+            },
+            {
+              "user_condition": {
+                "data.app_role": "operaciones"
+              }
+            },
+            {
+              "id": "{{user.id}}"
+            }
+          ]
+        }
+      }
+    },
+    "terms_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de aceptaci\u00f3n de t\u00e9rminos"
+    },
+    "privacy_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de aceptaci\u00f3n de privacidad"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "role"
+  ],
+  "name": "User",
+  "type": "object"
+}

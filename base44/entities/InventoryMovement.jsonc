@@ -1,0 +1,126 @@
+{
+  "name": "InventoryMovement",
+  "type": "object",
+  "properties": {
+    "intensity": {
+      "type": "string",
+      "title": "Intensidad / Kit",
+      "enum": [
+        "renueva_7",
+        "activa_7",
+        "evoluciona_7"
+      ]
+    },
+    "aliada_id": {
+      "type": "string",
+      "title": "Aliada a la que se atribuye (carga por Aliada)"
+    },
+    "movement_type": {
+      "type": "string",
+      "title": "Tipo de movimiento",
+      "enum": [
+        "receipt",
+        "adjustment",
+        "return",
+        "sale",
+        "sale_reversal"
+      ]
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Cantidad (signo: + entrada / - salida)",
+      "default": 1
+    },
+    "related_sale_id": {
+      "type": "string",
+      "title": "Sale relacionada"
+    },
+    "related_weekly_cycle_id": {
+      "type": "string",
+      "title": "WeeklyCycle relacionado"
+    },
+    "status": {
+      "type": "string",
+      "title": "Estado (no se elimina, se reversa y se audita)",
+      "enum": [
+        "pending",
+        "confirmed",
+        "reversed"
+      ],
+      "default": "confirmed"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Raz\u00f3n"
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Creado por (User ID)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.aliada_id": "{{user.aliada_id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "intensity",
+    "movement_type",
+    "quantity"
+  ]
+}

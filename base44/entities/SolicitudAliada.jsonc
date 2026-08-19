@@ -1,0 +1,117 @@
+{
+  "name": "SolicitudAliada",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre completo"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+    },
+    "telefono": {
+      "type": "string",
+      "title": "WhatsApp"
+    },
+    "ciudad": {
+      "type": "string",
+      "title": "Alcald\u00eda, municipio o zona"
+    },
+    "ocupacion": {
+      "type": "string",
+      "title": "Ocupaci\u00f3n o actividad actual"
+    },
+    "experiencia_venta": {
+      "type": "string",
+      "title": "Experiencia de venta o atenci\u00f3n a personas"
+    },
+    "tiempo_disponible": {
+      "type": "string",
+      "title": "Tiempo disponible"
+    },
+    "mensaje": {
+      "type": "string",
+      "title": "Motivo para ser Aliada"
+    },
+    "estado": {
+      "type": "string",
+      "title": "Estado de postulaci\u00f3n",
+      "enum": [
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "waitlist"
+      ],
+      "default": "submitted"
+    },
+    "source_domain": {
+      "type": "string",
+      "title": "Dominio de origen"
+    },
+    "campaign": {
+      "type": "string",
+      "title": "Campa\u00f1a / UTM"
+    },
+    "ip": {
+      "type": "string",
+      "title": "IP de origen"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "nombre",
+    "email",
+    "telefono"
+  ]
+}

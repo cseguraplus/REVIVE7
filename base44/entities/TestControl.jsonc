@@ -1,0 +1,89 @@
+{
+  "name": "TestControl",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "Usuario (User ID)"
+    },
+    "enabled": {
+      "type": "boolean",
+      "title": "Modo prueba activo para esta cuenta",
+      "default": false
+    },
+    "effective_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha simulada individual"
+    },
+    "allow_reset": {
+      "type": "boolean",
+      "title": "Permitir reset de progreso",
+      "default": false
+    },
+    "updated_by": {
+      "type": "string",
+      "title": "Actualizado por (User ID)"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha de actualizaci\u00f3n"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "data.app_role": "superadmin"
+      }
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}
