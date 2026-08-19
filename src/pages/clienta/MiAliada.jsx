@@ -15,8 +15,8 @@ export default function MiAliada() {
         const p = cps && cps[0];
         setProfile(p || null);
         if (p?.aliada_id) {
-          const aps = await base44.entities.AliadaProfile.filter({ id: p.aliada_id });
-          setAliada(aps && aps[0] || null);
+          const res = await base44.functions.invoke('getMyAliadaContact', {});
+          setAliada(res?.data?.aliada || null);
         }
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }

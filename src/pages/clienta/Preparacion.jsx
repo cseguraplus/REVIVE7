@@ -71,7 +71,10 @@ export default function Preparacion() {
         try { setChecklist(JSON.parse(prof.prep_checklist_json || "[]")); } catch { /* noop */ }
         setGoal(prof.start_goal || "");
         if (prof.aliada_id) {
-          try { setAliada(await base44.entities.AliadaProfile.get(prof.aliada_id)); } catch { /* noop */ }
+          try {
+            const res = await base44.functions.invoke('getMyAliadaContact', {});
+            setAliada(res?.data?.aliada || null);
+          } catch { /* noop */ }
         }
         const enrollments = await base44.entities.Enrollment.filter({ clienta_id: user.id, status: "active" });
         const enr = enrollments[0];

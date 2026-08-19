@@ -43,7 +43,20 @@
   },
   "rls": {
     "read": true,
-    "create": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "data.app_role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "data.app_role": "operaciones"
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
