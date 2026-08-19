@@ -1,6 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { requireInternalOrRole } from '../../shared/auth.ts';
 
 // Generación diaria de alertas preventivas para clientas activas.
+// Invocada por los workflows DailyAlerts / DailyAlertsAndSummary (cron) con el
+// secreto interno, o manualmente por superadmin/operaciones.
 // Tipos: incomplete_previous_day, no_activity, con_dificultad,
 // week_ending_soon, week_ended_no_renewal, prep_incomplete, low_inventory.
 // Dedupe: no crea alerta abierta duplicada para mismo tipo + clienta + ciclo (cycle_key).
@@ -25,12 +28,8 @@ const DIFFICULT = ['low', 'bad'];
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    let user = null;
-    try { user = await base44.auth.me(); } catch (e) {}
-    if (user) {
-      const appRole = user.app_role || (user.data && user.data.app_role);
-      if (appRole !== 'superadmin' && appRole !== 'operaciones') return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const auth = await requireInternalOrRole(req, base44, ['superadmin', 'operaciones']);
+    if (!auth.ok) return auth.response;
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();
     const s = settings && settings[0];

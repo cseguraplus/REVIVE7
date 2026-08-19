@@ -1,20 +1,17 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { requireRole } from '../../shared/auth.ts';
 
 // Correos transaccionales para usuarios registrados (SendEmail solo llega a usuarios registrados).
 // Tipos soportados: account_activation, aliada_approval, clienta_invitation,
 // weekly_cycle_confirmation, generation_start, admin_change.
 // No campañas promocionales, no WhatsApp automático.
+// Sin caller conocido en el repo (ni workflow ni frontend): no acepta secreto interno,
+// solo usuarios humanos con rol permitido.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    let user = null;
-    try { user = await base44.auth.me(); } catch (e) {}
-    if (user) {
-      const appRole = user.app_role || (user.data && user.data.app_role);
-      if (appRole !== 'superadmin' && appRole !== 'operaciones' && appRole !== 'aliada') {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    }
+    const auth = await requireRole(req, base44, ['superadmin', 'operaciones', 'aliada']);
+    if (!auth.ok) return auth.response;
 
     const body = await req.json().catch(() => ({}));
     const { type, to, name, context } = body;

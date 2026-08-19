@@ -1,16 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { requireInternalOrRole } from '../../shared/auth.ts';
 
 // Daily email summary for each active aliada: number of pending actions + link to /aliada/inicio.
 // Gated by AppSettings.daily_summary_enabled (toggle during the test). No automatic WhatsApp.
+// Invocada por el workflow DailyAlertsAndSummary (cron) con el secreto interno,
+// o manualmente por superadmin/operaciones.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    let user = null;
-    try { user = await base44.auth.me(); } catch (e) {}
-    if (user) {
-      const appRole = user.app_role || (user.data && user.data.app_role);
-      if (appRole !== 'superadmin' && appRole !== 'operaciones') return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const auth = await requireInternalOrRole(req, base44, ['superadmin', 'operaciones']);
+    if (!auth.ok) return auth.response;
 
     const settings = await base44.asServiceRole.entities.AppSettings.list();
     const s = settings && settings[0];
