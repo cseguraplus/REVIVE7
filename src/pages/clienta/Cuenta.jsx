@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, LogOut, Mail, Shield, User } from "lucide-react";
 
 export default function Cuenta() {
-  const [me, setMe] = useState(null);
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const m = await base44.auth.me();
-        setMe(m);
-        const cps = await base44.entities.ClientaProfile.filter({ user_id: m.id });
+        const cps = await base44.entities.ClientaProfile.filter({ user_id: me.id });
         setProfile(cps && cps[0] || null);
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   const handleLogout = () => base44.auth.logout("/");
 

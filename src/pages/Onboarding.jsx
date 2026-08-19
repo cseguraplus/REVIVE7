@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import Revive7Logo from "@/components/Revive7Logo";
 import { Loader2, CheckCircle } from "lucide-react";
 
 export default function Onboarding() {
-  const [me, setMe] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user: me, isLoadingAuth } = useAuth();
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
@@ -17,14 +17,9 @@ export default function Onboarding() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    base44.auth.me()
-      .then((m) => {
-        setMe(m);
-        setForm((p) => ({ ...p, phone: m.phone || (m.data && m.data.phone) || "" }));
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    if (!me) return;
+    setForm((p) => ({ ...p, phone: me.phone || (me.data && me.data.phone) || "" }));
+  }, [me]);
 
   const appRole = me?.app_role || (me?.data && me?.data?.app_role) || "clienta";
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
@@ -71,7 +66,7 @@ export default function Onboarding() {
     }
   };
 
-  if (loading) {
+  if (isLoadingAuth || !me) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-revive-cream">
         <Loader2 className="w-8 h-8 animate-spin text-revive-green" />

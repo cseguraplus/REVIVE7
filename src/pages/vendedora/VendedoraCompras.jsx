@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, CheckCircle } from "lucide-react";
 
 export default function VendedoraCompras() {
+  const { user: me } = useAuth();
   const [vendedora, setVendedora] = useState(null);
   const [clientas, setClientas] = useState([]);
   const [form, setForm] = useState({ clienta_id: "", semana_numero: 1, monto: "", fecha_compra: new Date().toISOString().split("T")[0] });
@@ -13,7 +15,7 @@ export default function VendedoraCompras() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
+      if (!me) return;
       const vs = await base44.entities.Vendedora.filter({ user_id: me.id });
       if (vs.length > 0) {
         setVendedora(vs[0]);
@@ -23,7 +25,7 @@ export default function VendedoraCompras() {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [me]);
 
   const clientaMap = Object.fromEntries(clientas.map(c => [c.id, c]));
 

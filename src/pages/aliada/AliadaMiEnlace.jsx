@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Link2, Copy, MessageCircle, Check } from "lucide-react";
 
 export default function AliadaMiEnlace() {
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const aps = await base44.entities.AliadaProfile.filter({ user_id: me.id });
         setProfile(aps && aps[0] || null);
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-revive-green" /></div>;
 

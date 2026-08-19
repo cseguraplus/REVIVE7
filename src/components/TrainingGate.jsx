@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, GraduationCap, Lock } from "lucide-react";
 
 // Bloquea el registro de clientas/ventas hasta completar la capacitación.
 // Solo aplica si el usuario tiene AliadaProfile y training_status !== completed.
 export default function TrainingGate({ children }) {
+  const { user: me } = useAuth();
   const [state, setState] = useState("loading"); // loading | blocked | ok
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const role = me.app_role || (me.data && me.data.app_role);
         if (role !== "aliada") { setState("ok"); return; }
         const profiles = await base44.entities.AliadaProfile.filter({ user_id: me.id });
@@ -20,7 +22,7 @@ export default function TrainingGate({ children }) {
         setState(p.training_status === "completed" ? "ok" : "blocked");
       } catch (e) { setState("ok"); }
     })();
-  }, []);
+  }, [me]);
 
   if (state === "loading") {
     return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-revive-green" /></div>;

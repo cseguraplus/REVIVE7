@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import Revive7Logo from "@/components/Revive7Logo";
 import {
   LayoutDashboard, Users, ShoppingBag, Package, BookOpen,
@@ -71,13 +72,8 @@ const navByAppRole = {
 export default function AppLayout({ role = "admin" }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [appRole, setAppRole] = useState(null);
-
-  useEffect(() => {
-    base44.auth.me()
-      .then((m) => setAppRole(m.app_role || (m.data && m.data.app_role) || role))
-      .catch(() => setAppRole(role));
-  }, [role]);
+  const { user } = useAuth();
+  const appRole = (user && (user.app_role || (user.data && user.data.app_role))) || role;
 
   const nav = navByAppRole[appRole] || (role === "aliada" ? aliadaNav : role === "clienta" ? clientaNav : operacionesNav);
 

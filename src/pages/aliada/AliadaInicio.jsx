@@ -1,86 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import { Loader2, AlertCircle, Sparkles, Clock, HeartHandshake, CalendarOff, CalendarClock, RefreshCw, ClipboardList, Inbox, Package, ChevronRight } from "lucide-react";
+import { Loader2, AlertCircle, Sparkles, Inbox, Package, ChevronRight } from "lucide-react";
 import AliadaAlertCard from "@/components/aliada/AliadaAlertCard";
-
-const INTENSITY_LABEL = { renueva_7: "Renueva 7", activa_7: "Activa 7", evoluciona_7: "Evoluciona 7" };
-
-function fmt(d) { return d ? new Date(d + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short" }) : ""; }
+import { useBase44Query } from "@/hooks/useBase44Query";
+import { buildAliadaAlertGroups } from "./aliadaAlertGroups";
 
 export default function AliadaInicio() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data, isLoading, error } = useBase44Query("getAliadaDashboard", {});
 
-  useEffect(() => {
-    base44.functions.invoke("getAliadaDashboard", {})
-      .then((res) => setData(res.data))
-      .catch((err) => setError(err.response?.data?.error || err.message || "Error al cargar datos"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-revive-green" /></div>;
+  if (isLoading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-revive-green" /></div>;
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-        <div><p className="font-heading font-semibold text-red-800">No se pudieron cargar tus datos</p><p className="text-sm text-red-700 mt-1">{error}</p></div>
+        <div><p className="font-heading font-semibold text-red-800">No se pudieron cargar tus datos</p><p className="text-sm text-red-700 mt-1">{/** @type {any} */ (error).response?.data?.error || error.message || "Error al cargar datos"}</p></div>
       </div>
     );
   }
 
-  const { aliada_profile, clientas, low_inventory, prospect_overdue, effective_date } = data;
-  const aliadaName = aliada_profile?.public_name || "tu aliada";
-  const active = clientas.filter((c) => c.status === "active" || c.status === "pending");
-
-  const groups = [
-    { key: "incomplete_previous_day", icon: Clock, title: "Día anterior incompleto", hint: "Cierran su día de ayer con tu apoyo", items: active.filter((c) => c.incomplete_previous_day) },
-    { key: "con_dificultad", icon: HeartHandshake, title: "Con dificultad", hint: "Se sienten bajas hoy", items: active.filter((c) => c.con_dificultad) },
-    { key: "inactive_2_days", icon: CalendarOff, title: "Sin actividad (2 días)", hint: "No las hemos visto en dos días", items: active.filter((c) => c.inactive_2_days) },
-    { key: "week_ending_soon", icon: CalendarClock, title: "Próximas a terminar semana", hint: "Conversa su siguiente Kit", items: active.filter((c) => c.week_ending_soon) },
-    { key: "week_ended_no_renewal", icon: RefreshCw, title: "Semana terminada sin renovación", hint: "Aún sin Kit de la semana actual", items: active.filter((c) => c.week_ended_no_renewal) },
-    { key: "prep_pending", icon: ClipboardList, title: "Preparación pendiente", hint: "Aún no inician su programa", items: active.filter((c) => c.prep_pending) },
-  ];
-
-  const msg = (c, text) => `Hola ${c.full_name || "clienta"}, soy ${aliadaName} de Ser Vivo. ${text}`;
-  const clientMessages = {
-    incomplete_previous_day: (c) => msg(c, "¿Cómo te fue con tu día de ayer? Cualquier duda aquí estoy. 🌿"),
-    con_dificultad: (c) => msg(c, "vi que ayer fue con dificultad. ¿Platicamos? Estoy para apoyarte. 💚"),
-    inactive_2_days: (c) => msg(c, "hace un par de días no te veo. ¿Todo bien? Retoma tu proceso cuando puedas. 🌱"),
-    week_ending_soon: (c) => msg(c, "tu semana está por terminar. ¿Listas para tu siguiente Kit? Avísame. 🌿"),
-    week_ended_no_renewal: (c) => msg(c, "tu semana terminó sin renovación. ¿Platicamos tu siguiente Kit? 💚"),
-    prep_pending: (c) => msg(c, "falta completar tu preparación. ¿Te ayudo a avanzar? 🌱"),
-  };
-  const clientFecha = {
-    incomplete_previous_day: () => fmt(effective_date),
-    con_dificultad: () => fmt(effective_date),
-    inactive_2_days: (c) => fmt(c.last_activity_date),
-    week_ending_soon: (c) => fmt(c.renovation_due_date),
-    week_ended_no_renewal: (c) => fmt(c.renovation_due_date),
-    prep_pending: () => fmt(effective_date),
-  };
-  const clientEstado = (c) => c.status === "active" ? "Activa" : c.status === "pending" ? "Preparación" : c.status;
-
-  const prospectItems = (prospect_overdue || []).map((p) => ({
-    nombre: p.nombre,
-    motivo: `Acción vencida: ${p.next_action || "contactar"}`,
-    fecha: fmt(p.next_action_date),
-    estado: p.status,
-    phone: p.telefono,
-    message: `Hola ${p.nombre}, soy ${aliadaName} de Ser Vivo. ¿Te interesa comenzar esta semana? 🌿`,
-  }));
-
-  const inventoryItems = (low_inventory || []).map((i) => ({
-    nombre: INTENSITY_LABEL[i.intensity] || i.intensity,
-    motivo: "Inventario bajo",
-    fecha: fmt(effective_date),
-    estado: i.status === "out_of_stock" ? "Agotado" : i.status === "low_stock" ? "Bajo" : "Disponible",
-    intensity: i.intensity,
-    available: i.available,
-  }));
-
-  const totalAlerts = groups.reduce((n, g) => n + g.items.length, 0) + prospectItems.length + inventoryItems.length;
+  const { aliada_profile, clientas, using_simulated } = data;
+  const { aliadaName, groups, prospectItems, inventoryItems, totalAlerts } = buildAliadaAlertGroups(data);
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -88,7 +27,7 @@ export default function AliadaInicio() {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="font-heading font-bold text-xl">A quién atender hoy</h1>
-            <p className="text-white/70 text-sm truncate">{aliadaName} · Código <span className="font-mono text-revive-green-light">{aliada_profile?.aliada_code}</span>{data.using_simulated && <span className="ml-2 text-purple-300 text-xs">(modo prueba)</span>}</p>
+            <p className="text-white/70 text-sm truncate">{aliadaName} · Código <span className="font-mono text-revive-green-light">{aliada_profile?.aliada_code}</span>{using_simulated && <span className="ml-2 text-purple-300 text-xs">(modo prueba)</span>}</p>
           </div>
           <div className="text-right flex-shrink-0">
             <p className="text-2xl font-heading font-bold text-revive-green-light">{totalAlerts}</p>
@@ -114,15 +53,15 @@ export default function AliadaInicio() {
           </div>
           <p className="text-xs text-muted-foreground -mt-2">{g.hint}</p>
           <div className="space-y-3">
-            {g.items.map((c) => (
+            {g.items.map(({ clienta: c, fecha, estado, message }) => (
               <AliadaAlertCard
                 key={c.clienta_id || c.clienta_profile_id}
                 nombre={c.full_name || `Clienta ${(c.clienta_id || "").slice(-6)}`}
                 motivo={g.title}
-                fecha={clientFecha[g.key](c)}
-                estado={clientEstado(c)}
+                fecha={fecha}
+                estado={estado}
                 phone={c.phone}
-                message={clientMessages[g.key](c)}
+                message={message}
               />
             ))}
           </div>

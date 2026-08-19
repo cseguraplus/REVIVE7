@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 
 const ROLE_HOME = {
   superadmin: "/admin",
@@ -11,12 +12,13 @@ const ROLE_HOME = {
 };
 
 export default function RoleRouter() {
+  const { user: me } = useAuth();
   const [state, setState] = useState({ loading: true, redirect: null });
 
   useEffect(() => {
+    if (!me) { setState({ loading: false, redirect: "/login" }); return; }
     (async () => {
       try {
-        const me = await base44.auth.me();
         const appRole = me.app_role || (me.data && me.data.app_role) || "clienta";
         const onboardingDone = (me.onboarding_status || (me.data && me.data.onboarding_status)) === "completed";
 
@@ -38,7 +40,7 @@ export default function RoleRouter() {
         setState({ loading: false, redirect: "/login" });
       }
     })();
-  }, []);
+  }, [me]);
 
   if (state.loading) {
     return (

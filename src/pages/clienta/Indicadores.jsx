@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Save, Activity } from "lucide-react";
 
 const FIELDS = [
@@ -14,6 +15,7 @@ const FIELDS = [
 const CAPTURE_LABEL = { initial: "Inicio de semana", weekly: "Cierre de semana", final: "Cierre final" };
 
 export default function Indicadores() {
+  const { user: me } = useAuth();
   const [access, setAccess] = useState(null);
   const [metrics, setMetrics] = useState([]);
   const [form, setForm] = useState({ weight: "", waist: "", energy: "", sleep: "", digestion: "", stress: "", notes: "" });
@@ -23,9 +25,9 @@ export default function Indicadores() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const [a, m] = await Promise.all([
           base44.functions.invoke("getDailyAccess", { clientaId: me.id }),
           base44.entities.WeeklyMetrics.filter({ clienta_id: me.id }),
@@ -35,14 +37,13 @@ export default function Indicadores() {
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   const submit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setSavedMsg(null);
     try {
-      const me = await base44.auth.me();
       const payload = {
         clienta_id: me.id,
         enrollment_id: access?.enrollment_id || undefined,

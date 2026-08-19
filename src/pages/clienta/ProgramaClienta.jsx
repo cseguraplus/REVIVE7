@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { Play, CheckCircle, Lock, ShoppingBag, ChevronRight } from "lucide-react";
 
 export default function ProgramaClienta() {
+  const { user: me } = useAuth();
   const [clienta, setClienta] = useState(null);
   const [contenidos, setContenidos] = useState([]);
   const [progresos, setProgresos] = useState([]);
@@ -13,7 +15,7 @@ export default function ProgramaClienta() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
+      if (!me) return;
       const cls = await base44.entities.Clienta.filter({ user_id: me.id });
       if (cls.length > 0) {
         const c = cls[0];
@@ -29,7 +31,7 @@ export default function ProgramaClienta() {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [me]);
 
   const toggleDia = async (diaNum) => {
     if (!clienta || diaNum > (clienta.dias_desbloqueados || 0)) return;

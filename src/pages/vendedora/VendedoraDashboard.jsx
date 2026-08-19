@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import MetricCard from "@/components/MetricCard";
 import { Users, ShoppingBag, AlertCircle, Activity, Copy, CheckCircle } from "lucide-react";
@@ -13,6 +14,7 @@ const estadoStyle = {
 const estadoLabel = { activa: "Activa", pendiente_recompra: "⚡ Recompra pendiente", vencida: "⚠ Vencida", completada: "✓ Completada" };
 
 export default function VendedoraDashboard() {
+  const { user: me } = useAuth();
   const [vendedora, setVendedora] = useState(null);
   const [clientas, setClientas] = useState([]);
   const [compras, setCompras] = useState([]);
@@ -21,7 +23,7 @@ export default function VendedoraDashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
+      if (!me) return;
       const vs = await base44.entities.Vendedora.filter({ user_id: me.id });
       if (vs.length > 0) {
         const v = vs[0];
@@ -35,7 +37,7 @@ export default function VendedoraDashboard() {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [me]);
 
   const copy = () => {
     if (!vendedora) return;

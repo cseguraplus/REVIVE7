@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Zap, MessageCircle } from "lucide-react";
 
 const INTENSITY_LABEL = { renueva_7: "Renueva 7", activa_7: "Activa 7", evoluciona_7: "Evoluciona 7" };
 
 export default function MiIntensidad() {
+  const { user: me } = useAuth();
   const [access, setAccess] = useState(null);
   const [guide, setGuide] = useState(null);
   const [guides, setGuides] = useState([]);
@@ -15,9 +17,9 @@ export default function MiIntensidad() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const [a, gs, cps] = await Promise.all([
           base44.functions.invoke("getDailyAccess", { clientaId: me.id }),
           base44.entities.IntensityGuide.filter({ active: true }),
@@ -34,7 +36,7 @@ export default function MiIntensidad() {
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   const saveChoice = async () => {
     if (!profile || !choice) return;

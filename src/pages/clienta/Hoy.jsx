@@ -1,50 +1,28 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { Loader2, AlertCircle, FlaskConical, Sparkles } from "lucide-react";
 import VimeoTrackedPlayer from "@/components/vimeo/VimeoTrackedPlayer";
 import DailyAccessBadge from "@/components/clienta/DailyAccessBadge";
 import DailyCheckinForm from "@/components/clienta/DailyCheckinForm";
 import { parseVimeoUrl, vimeoEmbedUrl } from "@/lib/vimeo";
+import { useAuth } from "@/lib/AuthContext";
+import { useBase44Query } from "@/hooks/useBase44Query";
 
 const INTENSITY_LABEL = { renueva_7: "Renueva 7", activa_7: "Activa 7", evoluciona_7: "Evoluciona 7" };
 
 export default function Hoy() {
-  const [clientaId, setClientaId] = useState(null);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const clientaId = user?.id || null;
 
-  const load = useCallback(async (id) => {
-    try {
-      const res = await base44.functions.invoke("getDailyAccess", { clientaId: id });
-      setData(res?.data || null);
-      setError(null);
-    } catch (err) {
-      setError(err.message || "No se pudo cargar tu día.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data, isLoading, error, refetch } = useBase44Query(
+    "getDailyAccess",
+    { clientaId },
+    { enabled: !!clientaId }
+  );
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const me = await base44.auth.me();
-        setClientaId(me.id);
-        await load(me.id);
-      } catch (err) {
-        setError(err.message || "Debes iniciar sesión.");
-        setLoading(false);
-      }
-    })();
-  }, [load]);
+  const handleCompleted = () => { if (clientaId) refetch(); };
 
-  const handleCompleted = useCallback(() => {
-    if (clientaId) load(clientaId);
-  }, [clientaId, load]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="flex items-center justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-revive-green" /></div>;
   }
 
@@ -54,7 +32,7 @@ export default function Hoy() {
         <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-heading font-semibold text-red-800">No se pudo cargar tu día</p>
-          <p className="text-sm text-red-700 mt-1">{error}</p>
+          <p className="text-sm text-red-700 mt-1">{error.message || "Intenta de nuevo."}</p>
         </div>
       </div>
     );

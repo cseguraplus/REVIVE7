@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Plus, X, Loader2, Search } from "lucide-react";
 
 const estadoStyle = { activa: "bg-revive-green-pale text-revive-dark", pendiente_recompra: "bg-yellow-100 text-yellow-700", vencida: "bg-red-100 text-red-600", completada: "bg-blue-100 text-blue-700" };
 const estadoLabel = { activa: "Activa", pendiente_recompra: "Pendiente recompra", vencida: "Vencida", completada: "Completada" };
 
 export default function VendedoraClientas() {
+  const { user: me } = useAuth();
   const [vendedora, setVendedora] = useState(null);
   const [clientas, setClientas] = useState([]);
   const [search, setSearch] = useState("");
@@ -15,7 +17,7 @@ export default function VendedoraClientas() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const me = await base44.auth.me();
+    if (!me) return;
     const vs = await base44.entities.Vendedora.filter({ user_id: me.id });
     if (vs.length > 0) {
       setVendedora(vs[0]);
@@ -24,7 +26,7 @@ export default function VendedoraClientas() {
     }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [me]);
 
   const save = async (e) => {
     e.preventDefault(); setSaving(true);

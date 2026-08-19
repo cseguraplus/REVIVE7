@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Check, BookOpen, GraduationCap, Library, ShieldCheck, ChevronDown, ChevronRight } from "lucide-react";
 
 const MODULE_KEYS = ["revive7_intro", "intensities", "clients_sales"];
@@ -10,6 +11,7 @@ const MODULE_LABELS = {
 };
 
 export default function AliadaCapacitacion() {
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [modules, setModules] = useState([]);
   const [progress, setProgress] = useState([]);
@@ -22,7 +24,7 @@ export default function AliadaCapacitacion() {
   const [msg, setMsg] = useState(null);
 
   const load = async () => {
-    const me = await base44.auth.me();
+    if (!me) return;
     const [profs, mods, allProgress, exams, guides] = await Promise.all([
       base44.entities.AliadaProfile.filter({ user_id: me.id }),
       base44.entities.TrainingModule.filter({ active: true }),
@@ -37,7 +39,7 @@ export default function AliadaCapacitacion() {
     setIntensityGuides(guides || []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [me]);
 
   const completedKeys = new Set(progress.filter((p) => p.status === "completed").map((p) => p.module_key));
   const allModules = MODULE_KEYS.every((k) => completedKeys.has(k));

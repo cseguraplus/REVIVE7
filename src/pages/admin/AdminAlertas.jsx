@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Bell, ArrowLeftRight, FileEdit, Check, X } from "lucide-react";
 import { EmptyState, SearchInput, useAdminList } from "@/components/admin/AdminUI";
 
@@ -14,6 +15,7 @@ const ALERT_STATUS = { open: "Abierta", acknowledged: "Reconocida", resolved: "R
 const ALERT_TYPE = { no_activity: "Sin actividad", low_completion: "Baja cumplimiento", safety: "Seguridad", at_risk: "En riesgo", onboarding: "Onboarding" };
 
 export default function AdminAlertas() {
+  const { user: me } = useAuth();
   const [tab, setTab] = useState("alertas");
   const [alerts, setAlerts] = useState([]);
   const [reassignments, setReassignments] = useState([]);
@@ -64,9 +66,8 @@ export default function AdminAlertas() {
         else if (cr.entity_type === "Enrollment") entityName = "Enrollment";
         else if (cr.entity_type === "ClientaProfile") entityName = "ClientaProfile";
         if (entityName) await base44.entities[entityName].update(cr.entity_id, { [cr.field]: cr.new_value });
-        const me = await base44.auth.me();
         await base44.entities.AuditLog.create({
-          actor_user_id: me.id, action: `correction_approved:${cr.entity_type}.${cr.field}`,
+          actor_user_id: me?.id, action: `correction_approved:${cr.entity_type}.${cr.field}`,
           entity_type: cr.entity_type, entity_id: cr.entity_id,
           old_value_json: cr.old_value || "", new_value_json: cr.new_value || "", reason: cr.reason || "",
           timestamp: new Date().toISOString(),

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, AlertCircle, MessageCircle, Sparkles, Target, Calendar, Heart } from "lucide-react";
 import VideoPlaceholder from "@/components/clienta/VideoPlaceholder";
 import PrepCountdown from "@/components/clienta/PrepCountdown";
@@ -43,9 +44,9 @@ function AliadaWhatsAppButton({ aliada, label = "WhatsApp de mi Aliada" }) {
 }
 
 export default function Preparacion() {
+  const { user: me } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [me, setMe] = useState(null);
   const [profile, setProfile] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
   const [generation, setGeneration] = useState(null);
@@ -60,10 +61,10 @@ export default function Preparacion() {
   const [screening, setScreening] = useState(null);
 
   useEffect(() => {
+    if (!me) return;
+    const user = me;
     (async () => {
       try {
-        const user = await base44.auth.me();
-        setMe(user);
         const profiles = await base44.entities.ClientaProfile.filter({ user_id: user.id });
         const prof = profiles[0];
         setProfile(prof);
@@ -102,7 +103,7 @@ export default function Preparacion() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [me]);
 
   const toggleChecklist = async (id) => {
     const next = checklist.includes(id) ? checklist.filter((x) => x !== id) : [...checklist, id];

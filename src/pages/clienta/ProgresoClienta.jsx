@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { CheckCircle, Lock, Flame } from "lucide-react";
 
 export default function ProgresoClienta() {
+  const { user: me } = useAuth();
   const [clienta, setClienta] = useState(null);
   const [progresos, setProgresos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
+      if (!me) return;
       const cls = await base44.entities.Clienta.filter({ user_id: me.id });
       if (cls.length > 0) {
         const c = cls[0];
@@ -20,7 +22,7 @@ export default function ProgresoClienta() {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [me]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-revive-green border-t-transparent rounded-full animate-spin" /></div>;
   if (!clienta) return <div className="text-center py-20 text-muted-foreground">Perfil no encontrado.</div>;

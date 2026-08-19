@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Save, User, Phone, Hash, BadgeCheck } from "lucide-react";
 
 const STATUS_LABEL = { pending_training: "En capacitación", active: "Activa", suspended: "Suspendida", inactive: "Inactiva" };
 const TRAINING_LABEL = { not_started: "No iniciada", in_progress: "En progreso", completed: "Completada" };
 
 export default function AliadaPerfil() {
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ public_name: "", whatsapp: "" });
   const [saving, setSaving] = useState(false);
@@ -13,9 +15,9 @@ export default function AliadaPerfil() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const aps = await base44.entities.AliadaProfile.filter({ user_id: me.id });
         const p = aps && aps[0];
         setProfile(p || null);
@@ -23,7 +25,7 @@ export default function AliadaPerfil() {
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   const save = async () => {
     if (!profile) return;

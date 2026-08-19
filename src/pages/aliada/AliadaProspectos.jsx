@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, AlertCircle, Plus, X, Save } from "lucide-react";
 
 const STATUSES = [
@@ -23,6 +24,7 @@ const STATUS_COLOR = {
 };
 
 export default function AliadaProspectos() {
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [prospects, setProspects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +35,8 @@ export default function AliadaProspectos() {
   const [error, setError] = useState(null);
 
   const load = async () => {
+    if (!me) return;
     try {
-      const me = await base44.auth.me();
       const cps = await base44.entities.AliadaProfile.filter({ user_id: me.id });
       const p = cps && cps[0];
       setProfile(p || null);
@@ -44,7 +46,7 @@ export default function AliadaProspectos() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [me]);
 
   const openNew = () => { setEditing(null); setForm({ nombre: "", telefono: "", origen: "", interes: "", next_action: "", next_action_date: "", status: "nuevo", nota: "" }); setShowForm(true); };
   const openEdit = (p) => { setEditing(p); setForm({ nombre: p.nombre || "", telefono: p.telefono || "", origen: p.origen || "", interes: p.interes || "", next_action: p.next_action || "", next_action_date: p.next_action_date || "", status: p.status || "nuevo", nota: p.nota || "" }); setShowForm(true); };

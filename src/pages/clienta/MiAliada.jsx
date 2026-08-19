@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Heart, MessageCircle, Star } from "lucide-react";
 
 export default function MiAliada() {
+  const { user: me } = useAuth();
   const [profile, setProfile] = useState(null);
   const [aliada, setAliada] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!me) return;
     (async () => {
       try {
-        const me = await base44.auth.me();
         const cps = await base44.entities.ClientaProfile.filter({ user_id: me.id });
         const p = cps && cps[0];
         setProfile(p || null);
@@ -21,7 +23,7 @@ export default function MiAliada() {
       } catch (e) { /* ignore */ }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [me]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-revive-green" /></div>;
 

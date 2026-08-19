@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Lock, CheckCircle2, Flame, Zap } from "lucide-react";
 
 const INTENSITY_LABEL = { renueva_7: "Renueva 7", activa_7: "Activa 7", evoluciona_7: "Evoluciona 7" };
 const INTENSITY_COLOR = { renueva_7: "bg-revive-green", activa_7: "bg-revive-dark", evoluciona_7: "bg-amber-500" };
 
 export default function Progreso() {
+  const { user: me } = useAuth();
   const [data, setData] = useState(null);
   const [checkins, setCheckins] = useState([]);
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+    if (!me) return;
     try {
-      const me = await base44.auth.me();
       const [accessRes, done, programDays] = await Promise.all([
         base44.functions.invoke("getDailyAccess", { clientaId: me.id }),
         base44.entities.DailyCheckin.filter({ clienta_id: me.id, completed: true }),
@@ -24,7 +26,7 @@ export default function Progreso() {
       setDays(programDays || []);
     } catch (e) { /* ignore */ }
     finally { setLoading(false); }
-  }, []);
+  }, [me]);
 
   useEffect(() => { load(); }, [load]);
 
