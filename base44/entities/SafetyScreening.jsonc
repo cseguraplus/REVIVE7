@@ -8,7 +8,7 @@
     },
     "journey_id": {
       "type": "string",
-      "title": "ProgramJourney (Enrollment ID)"
+      "title": "Enrollment (ProgramJourney) ID"
     },
     "questionnaire_json": {
       "type": "string",
