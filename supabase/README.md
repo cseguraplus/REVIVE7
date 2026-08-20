@@ -4,23 +4,25 @@ Migraciones SQL que traducen el modelo vigente de Base44 (28 entidades en
 `base44/entities/*.jsonc`, sin el modelo legacy "vendedora" — ver
 `base44/LEGACY_MIGRATION_PLAN.md`) a tablas Postgres reales con Row Level
 Security, probadas de punta a punta contra un Postgres 16 local antes de
-entregarlas (ver "Cómo las probé" abajo).
+aplicarlas (ver "Cómo las probé" abajo).
 
-## Cómo aplicarlas en tu proyecto Supabase (`REVIVE7_1`)
+## Estado: ya aplicadas contra tu proyecto real (`REVIVE7_1`)
 
-**No pude ejecutarlas yo directo contra tu proyecto** — esta sesión no tiene
-salida de red hacia `supabase.co` (ni HTTPS ni conexión Postgres directa),
-el proxy del entorno la bloquea por política. Dos formas de aplicarlas tú:
+Una vez conectaste tu cuenta de Supabase a esta sesión, corrí las 9
+migraciones (`0001` a `0009`) directo contra `ntsecphrxxdcovhuweeo` vía el
+conector MCP de Supabase — no fue necesario copiar/pegar nada a mano. Las 29
+tablas existen hoy en tu proyecto con RLS activo.
 
-### Opción A — SQL Editor (más rápido, sin instalar nada)
+Si en algún momento necesitas volver a aplicarlas desde cero (otro
+proyecto, un ambiente de prueba nuevo — ver Fase 7), dos formas:
 
-1. Entra a tu proyecto → **SQL Editor** → **New query**.
-2. Pega el contenido de `0001_init_profiles_and_helpers.sql`, ejecútalo.
-3. Repite en orden con `0002_schema.sql`, `0003_triggers.sql`,
-   `0004_rls.sql`, `0005_indexes.sql` — **el orden importa**, cada archivo
-   depende de que el anterior ya haya corrido.
+### Opción A — SQL Editor (sin instalar nada)
 
-### Opción B — Supabase CLI (mejor para el largo plazo, versiona el estado)
+Entra a tu proyecto → **SQL Editor** → **New query**, pega y ejecuta cada
+archivo en orden (`0001` → `0009` — el orden importa, cada uno depende del
+anterior).
+
+### Opción B — Supabase CLI (mejor para versionar el estado a futuro)
 
 ```bash
 npm install -g supabase
@@ -29,11 +31,7 @@ supabase link --project-ref ntsecphrxxdcovhuweeo
 supabase db push
 ```
 
-`supabase db push` aplica todo lo que esté en `supabase/migrations/` en
-orden, y lleva registro de qué ya se aplicó — mejor que copiar/pegar si vas
-a seguir iterando el esquema.
-
-### Después de aplicar
+### Pendiente de tu lado
 
 Rota la contraseña de la base de datos (Settings → Database → Reset
 database password) — la compartiste en texto plano en el chat.
@@ -103,6 +101,37 @@ que RLS realmente aplicara) y confirmé:
 - Un superadmin **sí puede** marcar `completed = true`.
 - `intensity_guides`, `training_modules` y `app_settings` son legibles sin
   sesión (públicas), tal como en el original.
+
+## Hardening post-aplicación (0006-0009)
+
+Después de aplicar `0001`-`0005`, corrí el advisor de seguridad y de
+performance de Supabase contra el proyecto real y cerré todo lo accionable:
+
+- **0006/0007 (seguridad):** 5 funciones sin `search_path` fijo (riesgo de
+  shadowing), `handle_new_user()` invocable directo como RPC pública sin
+  necesidad (ahora revocada — solo la usa el trigger), y
+  `current_app_role()`/`current_aliada_id()` invocables por `anon` sin
+  sesión. El primer intento de revocar de `anon` no bastó — Postgres otorga
+  `EXECUTE` a `PUBLIC` (que `anon` hereda) al crear una función, y hay que
+  revocar de `PUBLIC` explícitamente, no solo del rol nombrado. Verificado
+  con el advisor tras cada cambio hasta quedar limpio (los 2 warnings que
+  quedan son esperados: `authenticated` necesita poder ejecutar esas dos
+  funciones para que las políticas RLS de usuarios logueados funcionen).
+- **0008 (performance):** 25 foreign keys sin índice de cobertura que
+  `0005_indexes.sql` no cubrió (cubría las columnas que el código ya usaba
+  en `.filter()`, pero se quedaron fuera varias FK que sí importan para
+  joins).
+- **0009 (performance):** las 115 políticas RLS llamaban a
+  `auth.uid()`/las funciones helper sin envolver en `(select ...)`, lo que
+  fuerza a Postgres a re-evaluarlas fila por fila en vez de una vez por
+  consulta. Se regeneraron todas con el patrón recomendado por Supabase.
+  Antes de aplicar contra producción, corrí esta migración contra el
+  Postgres local y repetí la prueba de "clienta no puede subirse a
+  superadmin" para confirmar que el comportamiento de seguridad no cambió.
+
+Quedan únicamente hallazgos `unused_index` (nivel INFO, no WARN) — esperado
+en una base con 0 filas y 0 consultas reales todavía; se resuelven solos en
+cuanto la app empiece a usarse.
 
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
