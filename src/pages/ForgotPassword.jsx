@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import Revive7Logo from "@/components/Revive7Logo";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -11,7 +11,11 @@ export default function ForgotPassword() {
 
   const submit = async (e) => {
     e.preventDefault(); setLoading(true);
-    try { await base44.auth.resetPasswordRequest(email); } catch {}
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+    } catch {}
     setSent(true); setLoading(false);
   };
 

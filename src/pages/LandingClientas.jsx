@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import Nav from "@/components/landing/clientas/Nav";
 import Hero from "@/components/landing/clientas/Hero";
 import Problem from "@/components/landing/clientas/Problem";
@@ -22,8 +22,8 @@ export default function LandingClientas() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    base44.auth.isAuthenticated().then((authed) => {
-      if (authed) navigate("/dashboard", { replace: true });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate("/dashboard", { replace: true });
       else setReady(true);
     }).catch(() => setReady(true));
   }, [navigate]);

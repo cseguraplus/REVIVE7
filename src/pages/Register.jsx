@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import Revive7Logo from "@/components/Revive7Logo";
 import GoogleIcon from "@/components/GoogleIcon";
 import { Loader2, Eye, EyeOff } from "lucide-react";
@@ -23,11 +23,15 @@ export default function Register() {
     if (!acceptTerms || !acceptPrivacy) { setError("Debes aceptar los Términos y el Aviso de Privacidad."); return; }
     setLoading(true); setError("");
     try {
-      await base44.auth.register({ email: form.email, password: form.password });
+      const { error } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: { data: { full_name: form.full_name } },
+      });
+      if (error) throw error;
       setStep("otp");
     } catch (err) {
-      const real = err?.response?.data?.message || err?.message || (typeof err === "string" ? err : "");
-      setError(`Error al registrar. ${real || "Revisa los datos e intenta de nuevo."}`);
+      setError(`Error al registrar. ${err?.message || "Revisa los datos e intenta de nuevo."}`);
     } finally { setLoading(false); }
   };
 
@@ -35,26 +39,28 @@ export default function Register() {
     e.preventDefault();
     setLoading(true); setError("");
     try {
-      const { access_token } = await base44.auth.verifyOtp({ email: form.email, otpCode: otp });
-      base44.auth.setToken(access_token);
-      // full_name es un campo built-in que updateMe no puede sobreescribir; se omite para no lanzar error.
-      // El guardado de perfil es best-effort: el token ya quedó seteado y el redirect no debe bloquearse.
+      const { data, error } = await supabase.auth.verifyOtp({ email: form.email, token: otp, type: "signup" });
+      if (error) throw error;
+      // El perfil ya existe (trigger on_auth_user_created); esto es best-effort,
+      // el redirect no debe bloquearse si falla.
       try {
         const now = new Date().toISOString();
-        await base44.auth.updateMe({
+        await supabase.from("profiles").update({
           phone: form.phone,
           terms_accepted_at: now,
           privacy_accepted_at: now,
-        });
+        }).eq("id", data.user.id);
       } catch (e) { /* best-effort */ }
       window.location.href = "/dashboard";
     } catch (err) {
-      const real = err?.response?.data?.message || err?.message || "";
-      setError(real ? `Código incorrecto o expirado. ${real}` : "Código incorrecto. Inténtalo de nuevo.");
+      setError(err?.message ? `Código incorrecto o expirado. ${err.message}` : "Código incorrecto. Inténtalo de nuevo.");
     } finally { setLoading(false); }
   };
 
-  const googleRegister = () => base44.auth.loginWithProvider("google", "/dashboard");
+  const googleRegister = () => supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${window.location.origin}/dashboard` },
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-revive-cream via-white to-revive-green-pale flex items-center justify-center p-4 py-8">
@@ -116,7 +122,7 @@ export default function Register() {
               <button type="submit" disabled={loading} className="w-full bg-revive-dark text-white font-heading font-bold py-3.5 rounded-xl disabled:opacity-60 flex items-center justify-center gap-2">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verificar"}
               </button>
-              <button type="button" onClick={() => base44.auth.resendOtp(form.email)} className="w-full text-sm text-revive-green font-heading font-semibold hover:underline">
+              <button type="button" onClick={() => supabase.auth.resend({ type: "signup", email: form.email })} className="w-full text-sm text-revive-green font-heading font-semibold hover:underline">
                 Reenviar código
               </button>
             </form>

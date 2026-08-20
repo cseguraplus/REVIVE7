@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Loader2, LogOut, Mail, Shield, User } from "lucide-react";
 
 export default function Cuenta() {
-  const { user: me } = useAuth();
+  const { user: me, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +19,7 @@ export default function Cuenta() {
     })();
   }, [me]);
 
-  const handleLogout = () => base44.auth.logout("/");
+  const handleLogout = () => logout();
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-revive-green" /></div>;
 

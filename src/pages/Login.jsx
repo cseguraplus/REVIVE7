@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import Revive7Logo from "@/components/Revive7Logo";
 import GoogleIcon from "@/components/GoogleIcon";
 import { Loader2, Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true); setError("");
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       window.location.href = "/dashboard";
     } catch (err) {
       setError("Correo o contraseña incorrectos. Intenta de nuevo.");
@@ -24,7 +25,10 @@ export default function Login() {
     }
   };
 
-  const googleLogin = () => base44.auth.loginWithProvider("google", "/dashboard");
+  const googleLogin = () => supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${window.location.origin}/dashboard` },
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-revive-cream via-white to-revive-green-pale flex items-center justify-center p-4 py-8">

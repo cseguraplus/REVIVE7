@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { resolveAppRole } from "@/lib/roleHome";
 import Revive7Logo from "@/components/Revive7Logo";
@@ -73,12 +72,12 @@ const navByAppRole = {
 export default function AppLayout({ role = "admin" }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const appRole = user ? resolveAppRole(user) : role;
 
   const nav = navByAppRole[appRole] || (role === "aliada" ? aliadaNav : role === "clienta" ? clientaNav : operacionesNav);
 
-  const handleLogout = () => base44.auth.logout("/");
+  const handleLogout = () => logout();
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

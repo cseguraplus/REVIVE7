@@ -133,10 +133,57 @@ Quedan únicamente hallazgos `unused_index` (nivel INFO, no WARN) — esperado
 en una base con 0 filas y 0 consultas reales todavía; se resuelven solos en
 cuanto la app empiece a usarse.
 
+## Paso 2 — Supabase Auth en el frontend
+
+Reemplacé el SDK de Base44 por `@supabase/supabase-js` solo en la capa de
+autenticación (no toqué todavía las llamadas a `base44.entities.*`/
+`base44.functions.invoke` del resto de la app — eso es el paso 4):
+
+- `src/lib/supabaseClient.js` (nuevo) — cliente de Supabase, lee
+  `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` de `.env.local` (ver
+  `.env.local.example`, copia y llena tu anon key desde el dashboard →
+  Project Settings → API).
+- `src/lib/AuthContext.jsx` — reescrito para usar `supabase.auth.*` en vez
+  de `base44.auth.*`. `useAuth().user` sigue exponiendo la misma forma que
+  ya esperaba el resto de la app tras la Fase 4 (`.id`, `.app_role`,
+  `.phone`, etc.) — internamente ahora es `auth.users` + la fila de
+  `public.profiles` fusionadas.
+- `Login.jsx`, `Register.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx`,
+  `LandingClientas.jsx`, `AppLayout.jsx`, `Cuenta.jsx` — actualizados para
+  llamar a Supabase en vez de Base44 (login por contraseña, Google OAuth,
+  registro con verificación por código, recuperar/restablecer contraseña,
+  logout).
+- `OAuthConsent.jsx` — **no lo toqué a propósito**. No es autenticación de
+  usuario: es la pantalla de consentimiento del servidor MCP de Base44 para
+  clientes de IA. No tiene equivalente en Supabase; cuando cortes por
+  completo con Base44 esta página se puede borrar.
+
+### Configuración pendiente en el dashboard de Supabase (no lo pude hacer yo)
+
+El conector MCP se desconectó a mitad de esta fase, así que esto quedó
+pendiente de que lo hagas tú en **Authentication** → **Settings**/**Email
+Templates**:
+
+1. **Habilitar el proveedor Google** (Authentication → Providers → Google)
+   si quieres que el botón "Entrar con Google" funcione — necesita un
+   Client ID/Secret de Google Cloud Console.
+2. **Plantilla de "Confirm signup" con código OTP, no enlace.** La pantalla
+   de registro (`Register.jsx`) ya tiene una caja para capturar un código de
+   6 dígitos — pero la plantilla de correo por defecto de Supabase manda un
+   **enlace**, no un código. Para que el flujo funcione como está hoy en la
+   UI, en Authentication → Email Templates → "Confirm signup", cambia el
+   cuerpo para incluir `{{ .Token }}` (el código OTP) en vez de
+   `{{ .ConfirmationURL }}`. Si prefieres mantener el enlace en vez del
+   código, dímelo y ajusto `Register.jsx` a ese flujo en vez de al de OTP.
+3. **Redirect URLs permitidas** (Authentication → URL Configuration) —
+   agrega las URLs reales de tus dominios (`revive7.mx`, `apprevive7.mx`,
+   etc.) a la lista de "Redirect URLs", si no ya quedan bloqueados el login
+   con Google y el enlace de "olvidé mi contraseña".
+
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
-Este es solo el **paso 1** del plan de 10 pasos que te compartí. Todavía
-faltan: migrar Supabase Auth para el login real, reescribir las 47 funciones
-backend como Edge Functions, reemplazar el cliente Base44 en el frontend,
-migrar los datos reales, recrear los 5 workflows de cron, y reemplazar el
-envío de correos.
+Van 2 de 10 pasos. Todavía faltan: reescribir las 47 funciones backend como
+Edge Functions, reemplazar el cliente Base44 en el resto del frontend
+(`base44.entities.*`/`base44.functions.invoke` en ~65 archivos), migrar los
+datos reales, recrear los 5 workflows de cron, y reemplazar el envío de
+correos.

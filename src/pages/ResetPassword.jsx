@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/lib/supabaseClient";
 import Revive7Logo from "@/components/Revive7Logo";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// Supabase abre esta página ya con una sesión de recuperación activa (el
+// enlace del correo trae el token en el fragmento de la URL; supabaseClient
+// tiene detectSessionInUrl:true y la procesa automáticamente al cargar).
+// No hace falta leer ningún parámetro de token manualmente.
 export default function ResetPassword() {
-  const token = new URLSearchParams(window.location.search).get("token") || "";
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +20,8 @@ export default function ResetPassword() {
     if (password !== confirm) { setError("Las contraseñas no coinciden."); return; }
     setLoading(true); setError("");
     try {
-      await base44.auth.resetPassword({ resetToken: token, newPassword: password });
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw updateError;
       setDone(true);
       setTimeout(() => { window.location.href = "/login"; }, 2000);
     } catch { setError("El enlace expiró o es inválido."); }
