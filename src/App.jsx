@@ -71,6 +71,7 @@ import AdminIntegraciones from './pages/admin/AdminIntegraciones';
 import Onboarding from './pages/Onboarding';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
+import RoleGuard from '@/components/RoleGuard';
 import TrainingGate from '@/components/TrainingGate';
 
 const getDomainSite = () => {
@@ -114,57 +115,66 @@ const AuthenticatedApp = () => {
         <Route path="/dashboard" element={<RoleRouter />} />
         <Route path="/onboarding" element={<Onboarding />} />
 
-        {/* Admin */}
-        <Route element={<AppLayout role="admin" />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/vendedoras" element={<AdminVendedoras />} />
-          <Route path="/admin/clientas" element={<AdminClientas />} />
-          <Route path="/admin/compras" element={<AdminCompras />} />
-          <Route path="/admin/kits" element={<AdminKits />} />
-          <Route path="/admin/contenido" element={<AdminContenido />} />
-          <Route path="/admin/generaciones" element={<AdminGeneraciones />} />
-          <Route path="/admin/capacitacion" element={<AdminCapacitacion />} />
-          <Route path="/admin/alertas" element={<AdminAlertas />} />
-          <Route path="/admin/configuracion" element={<AdminConfiguracion />} />
-          <Route path="/admin/auditoria" element={<AdminAuditoria />} />
-          <Route path="/admin/integraciones" element={<AdminIntegraciones />} />
-          <Route path="/admin/reportes" element={<AdminReportes />} />
-          <Route path="/admin/operaciones" element={<AdminOperaciones />} />
-          <Route path="/admin/prueba" element={<AdminPrueba />} />
-          <Route path="/admin/leads" element={<AdminLeads />} />
-          <Route path="/admin/data-model" element={<AdminDataModel />} />
-          <Route path="/admin/aliadas" element={<AdminAliadas />} />
+        {/* Admin — superadmin/operaciones/contenidos comparten el layout admin */}
+        <Route element={<RoleGuard allowedRoles={["superadmin", "operaciones", "contenidos"]} />}>
+          <Route element={<AppLayout role="admin" />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/vendedoras" element={<AdminVendedoras />} />
+            <Route path="/admin/clientas" element={<AdminClientas />} />
+            <Route path="/admin/compras" element={<AdminCompras />} />
+            <Route path="/admin/kits" element={<AdminKits />} />
+            <Route path="/admin/contenido" element={<AdminContenido />} />
+            <Route path="/admin/generaciones" element={<AdminGeneraciones />} />
+            <Route path="/admin/capacitacion" element={<AdminCapacitacion />} />
+            <Route path="/admin/alertas" element={<AdminAlertas />} />
+            <Route path="/admin/configuracion" element={<AdminConfiguracion />} />
+            <Route path="/admin/auditoria" element={<AdminAuditoria />} />
+            <Route path="/admin/integraciones" element={<AdminIntegraciones />} />
+            <Route path="/admin/reportes" element={<AdminReportes />} />
+            <Route path="/admin/operaciones" element={<AdminOperaciones />} />
+            <Route path="/admin/prueba" element={<AdminPrueba />} />
+            <Route path="/admin/leads" element={<AdminLeads />} />
+            <Route path="/admin/data-model" element={<AdminDataModel />} />
+            <Route path="/admin/aliadas" element={<AdminAliadas />} />
+          </Route>
         </Route>
 
-        {/* Vendedora */}
-        <Route element={<AppLayout role="vendedora" />}>
-          <Route path="/vendedora" element={<VendedoraDashboard />} />
-          <Route path="/vendedora/clientas" element={<TrainingGate><VendedoraClientas /></TrainingGate>} />
-          <Route path="/vendedora/compras" element={<TrainingGate><VendedoraCompras /></TrainingGate>} />
+        {/* Vendedora — modelo legacy; el backend (Fase 2) ya solo permite escribir a
+            superadmin/operaciones, así que el guard de rutas refleja lo mismo. */}
+        <Route element={<RoleGuard allowedRoles={["superadmin", "operaciones"]} />}>
+          <Route element={<AppLayout role="vendedora" />}>
+            <Route path="/vendedora" element={<VendedoraDashboard />} />
+            <Route path="/vendedora/clientas" element={<TrainingGate><VendedoraClientas /></TrainingGate>} />
+            <Route path="/vendedora/compras" element={<TrainingGate><VendedoraCompras /></TrainingGate>} />
+          </Route>
         </Route>
 
         {/* Aliada */}
-        <Route element={<AppLayout role="aliada" />}>
-          <Route path="/aliada/inicio" element={<AliadaInicio />} />
-          <Route path="/aliada/clientas" element={<TrainingGate><AliadaClientas /></TrainingGate>} />
-          <Route path="/aliada/prospectos" element={<AliadaProspectos />} />
-          <Route path="/aliada/ventas" element={<TrainingGate><AliadaVentas /></TrainingGate>} />
-          <Route path="/aliada/inventario" element={<AliadaInventario />} />
-          <Route path="/aliada/capacitacion" element={<AliadaCapacitacion />} />
-          <Route path="/aliada/materiales" element={<AliadaMateriales />} />
-          <Route path="/aliada/mi-enlace" element={<AliadaMiEnlace />} />
-          <Route path="/aliada/perfil" element={<AliadaPerfil />} />
+        <Route element={<RoleGuard allowedRoles={["aliada"]} />}>
+          <Route element={<AppLayout role="aliada" />}>
+            <Route path="/aliada/inicio" element={<AliadaInicio />} />
+            <Route path="/aliada/clientas" element={<TrainingGate><AliadaClientas /></TrainingGate>} />
+            <Route path="/aliada/prospectos" element={<AliadaProspectos />} />
+            <Route path="/aliada/ventas" element={<TrainingGate><AliadaVentas /></TrainingGate>} />
+            <Route path="/aliada/inventario" element={<AliadaInventario />} />
+            <Route path="/aliada/capacitacion" element={<AliadaCapacitacion />} />
+            <Route path="/aliada/materiales" element={<AliadaMateriales />} />
+            <Route path="/aliada/mi-enlace" element={<AliadaMiEnlace />} />
+            <Route path="/aliada/perfil" element={<AliadaPerfil />} />
+          </Route>
         </Route>
 
         {/* Clienta */}
-        <Route element={<ClientaLayout />}>
-          <Route path="/hoy" element={<Hoy />} />
-          <Route path="/preparacion" element={<Preparacion />} />
-          <Route path="/progreso" element={<Progreso />} />
-          <Route path="/indicadores" element={<Indicadores />} />
-          <Route path="/mi-intensidad" element={<MiIntensidad />} />
-          <Route path="/mi-aliada" element={<MiAliada />} />
-          <Route path="/cuenta" element={<Cuenta />} />
+        <Route element={<RoleGuard allowedRoles={["clienta"]} />}>
+          <Route element={<ClientaLayout />}>
+            <Route path="/hoy" element={<Hoy />} />
+            <Route path="/preparacion" element={<Preparacion />} />
+            <Route path="/progreso" element={<Progreso />} />
+            <Route path="/indicadores" element={<Indicadores />} />
+            <Route path="/mi-intensidad" element={<MiIntensidad />} />
+            <Route path="/mi-aliada" element={<MiAliada />} />
+            <Route path="/cuenta" element={<Cuenta />} />
+          </Route>
         </Route>
       </Route>
 

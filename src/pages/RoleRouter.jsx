@@ -2,14 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-
-const ROLE_HOME = {
-  superadmin: "/admin",
-  operaciones: "/admin/operaciones",
-  contenidos: "/admin/contenido",
-  aliada: "/aliada/inicio",
-  clienta: "/hoy",
-};
+import { ROLE_HOME, resolveAppRole } from "@/lib/roleHome";
 
 export default function RoleRouter() {
   const { user: me } = useAuth();
@@ -19,7 +12,7 @@ export default function RoleRouter() {
     if (!me) { setState({ loading: false, redirect: "/login" }); return; }
     (async () => {
       try {
-        const appRole = me.app_role || (me.data && me.data.app_role) || "clienta";
+        const appRole = resolveAppRole(me);
         const onboardingDone = (me.onboarding_status || (me.data && me.data.onboarding_status)) === "completed";
 
         let profileComplete = true;
