@@ -180,7 +180,7 @@ Templates**:
    etc.) a la lista de "Redirect URLs", si no ya quedan bloqueados el login
    con Google y el enlace de "olvidé mi contraseña".
 
-## Paso 3 — Edge Functions (en progreso)
+## Paso 3 — Edge Functions (completo: escritas y desplegadas)
 
 Reescribí las funciones backend de Base44 (`base44/functions/*`, Deno +
 `@base44/sdk`) como Supabase Edge Functions (Deno + `@supabase/supabase-js`)
@@ -203,7 +203,15 @@ agrego — no se descartó nada, solo se postergó.
 Las 44 funciones restantes sí están en alcance para portar (producción real:
 ventas, checkins, video, dashboards de aliada, leads públicos, etc.).
 
-### Ya portadas (43 de 43 — Paso 3 completo, falta desplegar)
+### Ya portadas y desplegadas (45 de 45)
+
+45 = las 43 en alcance de Base44 + 2 nuevas (`adminListUsers`, `inviteUser`,
+agregadas en Paso 4 como puente de compatibilidad — ver esa sección).
+Confirmado con `list_edge_functions`: las 45 están `ACTIVE` contra tu
+proyecto real (`ntsecphrxxdcovhuweeo`). Las 5 públicas
+(`lookupAliadaByCode`, `createAliadaApplication`, `createLandingLead`,
+`submitAliadaApplication`, `submitClientLead`) se desplegaron con
+`verify_jwt: false`; el resto exige JWT normal.
 
 `_shared/` (equivalentes a `base44/shared/`):
 - `auth.ts` — `requireRole`/`requireInternalOrRole` (mismo contrato que
@@ -280,26 +288,26 @@ Decisiones de traducción:
   que pasar `verify_jwt: false`, si no el gateway de Supabase la bloquea
   antes de que corra el código (el resto sí exige JWT normal).
 
-### Pendiente de Paso 3: desplegar
+### Desplegado — estado final de Paso 3
 
-El código de las 43 funciones está completo y en el repo, pero el conector
-MCP de Supabase sigue desconectado en esta sesión, así que **nada de esto
-está desplegado todavía** contra tu proyecto real (`ntsecphrxxdcovhuweeo`).
-En cuanto reconectes te aviso y las subo con `deploy_edge_function` una por
-una (o si prefieres, `supabase functions deploy` desde la CLI usando
-`supabase/functions/` — instrucciones en la sección "Opción B" arriba,
-adaptadas a Edge Functions).
+Las 45 funciones ya están desplegadas y `ACTIVE` contra tu proyecto real
+(`ntsecphrxxdcovhuweeo`), subidas directo vía `deploy_edge_function` del
+conector MCP (no hizo falta la CLI). Verificado con `list_edge_functions` y
+con el advisor de seguridad — sin hallazgos nuevos atribuibles a estas
+funciones (los 3 warnings que muestra el advisor sobre
+`current_app_role()`/`current_aliada_id()` ya estaban documentados desde el
+hardening del Paso 1; hay uno nuevo, `rls_auto_enable()`, que es una función
+propia de Supabase, no algo que este proyecto creó).
 
-Antes de desplegar hace falta configurar, en tu proyecto Supabase:
-- Variable de entorno `INTERNAL_FUNCTION_SECRET` (Project Settings → Edge
-  Functions → Secrets) — mismo propósito que en Base44: permite que
-  `ensureUpcomingGenerations`, `generateDailyAlerts`, `syncClientStatuses`,
-  `sendAliadaDailyDigest`/`sendAliadaDailySummary` corran vía cron sin un
-  usuario humano detrás (Paso 6).
-- `lookupAliadaByCode`, `createAliadaApplication`, `createLandingLead`,
-  `submitAliadaApplication`, `submitClientLead` deben desplegarse con
-  `--no-verify-jwt` (son públicas, sin sesión) — el resto sí exige JWT
-  normal.
+Pendiente de tu lado, en el dashboard del proyecto (Project Settings → Edge
+Functions → Secrets):
+- Variable `INTERNAL_FUNCTION_SECRET` — mismo propósito que en Base44:
+  permite que `ensureUpcomingGenerations`, `generateDailyAlerts`,
+  `syncClientStatuses`, `sendAliadaDailyDigest`/`sendAliadaDailySummary`
+  corran vía cron sin un usuario humano detrás (Paso 6). Sin esta variable
+  configurada, esa vía nunca pasa (ver `hasValidInternalSecret` en
+  `_shared/auth.ts`) — no es un fallo de seguridad, es el comportamiento
+  esperado hasta que definas el secreto.
 
 Nota conocida: `findOrInviteUser` (en `_shared/auth.ts`) usa
 `auth.admin.listUsers()` para buscar por email antes de invitar, que pagina
@@ -351,8 +359,9 @@ lo consumen — mismo patrón que ya habíamos usado en `useBase44Query`/
 
 ### Pendiente de Paso 4
 
-- Probar en un navegador real una vez `.env.local` tenga las credenciales y
-  las Edge Functions del Paso 3 estén desplegadas.
+- Probar en un navegador real ahora que las Edge Functions ya están
+  desplegadas — falta un `.env.local` con las credenciales del proyecto
+  (`VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`, ver `.env.local.example`).
 - Decidir si conservar ambos duplicados públicos (`createAliadaApplication`/
   `submitAliadaApplication`, `createLandingLead`/`submitClientLead`) o
   retirar uno — pendiente desde el Paso 3.
@@ -361,9 +370,12 @@ lo consumen — mismo patrón que ya habíamos usado en `useBase44Query`/
 
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
-Van 4 de 10 pasos con código completo (2 y 4 aplicados/verificados, 3
-escrito pero sin desplegar — ver "Pendiente de Paso 3" arriba). Todavía
-faltan: desplegar las Edge Functions (Paso 3), migrar los datos reales
-(Paso 5), recrear los 5 workflows de cron (Paso 6), y reemplazar el envío de
-correos (Paso 7 — todas las funciones que enviaban correo quedaron con un
-`console.log` marcado `TODO(paso 7)` en vez de `base44.integrations.Core.SendEmail`).
+Van 4 de 10 pasos con código completo y desplegado/verificado (Pasos 1-4).
+Todavía faltan: migrar los datos reales (Paso 5), recrear los 5 workflows de
+cron (Paso 6 — incluye configurar `INTERNAL_FUNCTION_SECRET`, ver arriba), y
+reemplazar el envío de correos (Paso 7 — todas las funciones que enviaban
+correo quedaron con un `console.log` marcado `TODO(paso 7)` en vez de
+`base44.integrations.Core.SendEmail`). Después de eso: Paso 8 (desplegar el
+frontend a Vercel/Cloudflare Pages), Paso 9 (probar todo en el proyecto
+Supabase antes del corte) y Paso 10 (corte de DNS, con Base44 como
+respaldo).
