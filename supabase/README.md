@@ -180,10 +180,92 @@ Templates**:
    etc.) a la lista de "Redirect URLs", si no ya quedan bloqueados el login
    con Google y el enlace de "olvidé mi contraseña".
 
+## Paso 3 — Edge Functions (en progreso)
+
+Reescribí las funciones backend de Base44 (`base44/functions/*`, Deno +
+`@base44/sdk`) como Supabase Edge Functions (Deno + `@supabase/supabase-js`)
+en `supabase/functions/`.
+
+### Qué queda fuera de alcance (y por qué)
+
+Antes de portar nada leí las 49 funciones para decidir cuáles son código de
+producción real y cuáles son herramientas de piloto/pruebas usadas solo desde
+`/admin/prueba`. Estas 5 **no se portan**:
+
+- `createPilotAliada`, `registerClientaPilot`, `resetPilotUser`,
+  `getPilotVideoProgress`, `seedTestData`
+
+Todas exigen `superadmin`, crean/resetean cuentas de prueba con
+`is_test_account=true`, y no las llama nada fuera del panel de pruebas. Si
+las necesitas para probar el proyecto Supabase antes del corte, dímelo y las
+agrego — no se descartó nada, solo se postergó.
+
+Las 44 funciones restantes sí están en alcance para portar (producción real:
+ventas, checkins, video, dashboards de aliada, leads públicos, etc.).
+
+### Ya portadas (15 de 44)
+
+`_shared/` (equivalentes a `base44/shared/`):
+- `auth.ts` — `requireRole`/`requireInternalOrRole` (mismo contrato que
+  `base44/shared/auth.ts`, Fase 1 de la auditoría: nunca tratar "sin token"
+  como invocación interna confiable), más `getUserAndProfile`,
+  `serviceClient` (equivalente a `asServiceRole`), `userClient` (equivalente
+  a `base44.entities.X` sin `asServiceRole` — deja que RLS decida, útil para
+  columnas con `default auth.uid()` como `sales.created_by_id`), y
+  `getAuthUserMeta` (lee `full_name`/`phone` de `auth.users.user_metadata`,
+  donde vive el registro de `Register.jsx` — Base44 los tenía directo en la
+  entidad `User`).
+- `cors.ts` — igual que `base44/shared/cors.ts`.
+- `dates.ts`, `effectiveNow.ts`, `dailyAccess.ts`, `aliadaClientData.ts` —
+  lógica que Base44 obligaba a duplicar inline en cada función (no permitía
+  imports locales); aquí es un módulo compartido real, una sola fuente de
+  verdad para el reloj efectivo (fecha real vs. simulada en cuentas de
+  prueba), el cálculo de acceso diario, y el agregado de clientas por aliada.
+
+Funciones: `getEffectiveNow`, `getDailyAccess`, `getMyAliadaContact`,
+`getAliadaClientData`, `getAliadaDashboard`, `getAliadaVentas`,
+`registerSale`, `updateSale`, `cancelSale`, `completeDailyCheckin`,
+`saveVideoProgressBatch`, `validateVideoCompletion`, `lookupAliadaByCode`,
+`registerLastActivity`, `recordAuditLog`.
+
+Decisiones de traducción:
+- Donde Base44 encadenaba `base44.functions.invoke('otraFuncion', ...)`
+  (ej. `getAliadaDashboard` invocando `getAliadaClientData` y
+  `getEffectiveNow`; `completeDailyCheckin` invocando `getDailyAccess`), aquí
+  esa lógica vive en `_shared/` y se llama directo en el mismo proceso — más
+  rápido y sin el riesgo de que una Edge Function importe a otra por su
+  `index.ts` (eso re-ejecutaría su `Deno.serve` y rompería el runtime).
+- `registerSale` inserta la `Sale` con el cliente autenticado como el
+  usuario (no con el rol de servicio) para que la política RLS de inserción
+  y el `default auth.uid()` de `created_by_id` apliquen igual que en Base44
+  (`base44.entities.Sale.create` sin `asServiceRole`).
+- El envío de correo de confirmación de ciclo semanal en `registerSale`
+  quedó con un `console.log` marcado `TODO(paso 7)` — Base44 usaba
+  `base44.integrations.Core.SendEmail`; el reemplazo real (Resend u otro) es
+  el Paso 7 de la migración, no este paso.
+- `lookupAliadaByCode` sigue siendo pública (sin JWT) — al desplegarla hay
+  que pasar `verify_jwt: false`, si no el gateway de Supabase la bloquea
+  antes de que corra el código (el resto sí exige JWT normal).
+
+### Pendiente de Paso 3
+
+Aún faltan ~29 funciones por portar (capacitación/exámenes, inventario,
+correcciones/reasignaciones, seguridad/safety screening, alertas y cron
+jobs, leads públicos `createAliadaApplication`/`createLandingLead`,
+`registerClienta`, roles/cuentas admin, `migrationDryRunReport`). Continúo
+con la siguiente tanda cuando digas.
+
+El conector MCP de Supabase se desconectó a mitad de esta tanda, así que
+**estas 15 funciones están escritas y en el repo pero todavía no desplegadas**
+contra tu proyecto real — en cuanto reconectes te aviso y las subo con
+`deploy_edge_function` (o si prefieres, `supabase functions deploy` desde la
+CLI usando `supabase/functions/`).
+
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
-Van 2 de 10 pasos. Todavía faltan: reescribir las 47 funciones backend como
-Edge Functions, reemplazar el cliente Base44 en el resto del frontend
-(`base44.entities.*`/`base44.functions.invoke` en ~65 archivos), migrar los
-datos reales, recrear los 5 workflows de cron, y reemplazar el envío de
-correos.
+Van 2 de 10 pasos completos + Paso 3 en progreso (15/44 funciones escritas,
+pendientes de desplegar). Todavía faltan: terminar de portar y desplegar las
+Edge Functions restantes, reemplazar el cliente Base44 en el resto del
+frontend (`base44.entities.*`/`base44.functions.invoke` en ~65 archivos),
+migrar los datos reales, recrear los 5 workflows de cron, y reemplazar el
+envío de correos.
