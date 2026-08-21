@@ -203,7 +203,7 @@ agrego — no se descartó nada, solo se postergó.
 Las 44 funciones restantes sí están en alcance para portar (producción real:
 ventas, checkins, video, dashboards de aliada, leads públicos, etc.).
 
-### Ya portadas (15 de 44)
+### Ya portadas (43 de 43 — Paso 3 completo, falta desplegar)
 
 `_shared/` (equivalentes a `base44/shared/`):
 - `auth.ts` — `requireRole`/`requireInternalOrRole` (mismo contrato que
@@ -222,11 +222,44 @@ ventas, checkins, video, dashboards de aliada, leads públicos, etc.).
   verdad para el reloj efectivo (fecha real vs. simulada en cuentas de
   prueba), el cálculo de acceso diario, y el agregado de clientas por aliada.
 
-Funciones: `getEffectiveNow`, `getDailyAccess`, `getMyAliadaContact`,
-`getAliadaClientData`, `getAliadaDashboard`, `getAliadaVentas`,
-`registerSale`, `updateSale`, `cancelSale`, `completeDailyCheckin`,
-`saveVideoProgressBatch`, `validateVideoCompletion`, `lookupAliadaByCode`,
-`registerLastActivity`, `recordAuditLog`.
+Funciones portadas (43): `getEffectiveNow`, `getDailyAccess`,
+`getMyAliadaContact`, `getAliadaClientData`, `getAliadaDashboard`,
+`getAliadaVentas`, `registerSale`, `updateSale`, `cancelSale`,
+`completeDailyCheckin`, `saveVideoProgressBatch`, `validateVideoCompletion`,
+`lookupAliadaByCode`, `registerLastActivity`, `recordAuditLog`,
+`acceptTrainingGuidelines`, `adjustInventory`, `adminOverrideDay`,
+`approveAccount`, `approveAliadaApplication`, `completeOnboarding`,
+`completeTrainingModule`, `enrollInGeneration`, `ensureUpcomingGenerations`,
+`createAliadaApplication`, `createLandingLead`, `registerClienta`,
+`generateDailyAlerts`, `requestSaleCorrection`, `sendAliadaDailyDigest`,
+`sendAliadaDailySummary`, `sendTransactionalEmail`,
+`setAliadaApplicationStatus`, `setAliadaProfileStatus`, `setTestControl`,
+`setTestEffectiveDate`, `setUserRole`, `submitAliadaApplication`,
+`submitClientLead`, `submitSafetyScreening`, `submitTrainingExam`,
+`suspendAccount`, `syncClientStatuses`.
+
+**`migrationDryRunReport` no se porta** — no aplica a Supabase. Es un
+reporte de solo-lectura que audita las tablas legacy de Base44 (`Clienta`,
+`Compra`, `Vendedora`, `Kit`, `ContenidoDiario`, `ProgresoDiario`) para
+dimensionar la Fase 3 de retiro del modelo "vendedora" (ver
+`base44/LEGACY_MIGRATION_PLAN.md`). Esas tablas nunca se migraron a Postgres
+(decisión de Fase 3, antes de empezar la migración a Supabase) y solo
+existen en Base44 — la función se queda ahí como herramienta de
+planeación hasta que decidas retirar ese modelo definitivamente.
+
+**Dos pares de funciones públicas quedaron duplicados**, tal como estaban
+en Base44 (la auditoría original, Fase 6, ya había marcado esto para
+consolidar, pero se pospuso — ver `base44/functions/`): `createAliadaApplication`
+vs. `submitAliadaApplication` (ambas reciben postulaciones de Aliada desde
+aliadaservivo.com) y `createLandingLead` vs. `submitClientLead` (ambas
+reciben leads de revive7.mx). Las porté a las dos tal cual para no romper
+ningún caller real sin confirmar primero cuál usa cada landing page — dime
+cuál sigue viva en cada dominio y elimino la que sobra.
+
+**Duplicado interno también en `sendAliadaDailyDigest`/`sendAliadaDailySummary`**
+— eran funciones idénticas en Base44 (mismo cuerpo, dos nombres, invocadas por
+dos workflows de cron distintos). Las porté igual de duplicadas; al recrear
+los cron jobs en Paso 6 probablemente conviene quedarse solo con una.
 
 Decisiones de traducción:
 - Donde Base44 encadenaba `base44.functions.invoke('otraFuncion', ...)`
@@ -247,25 +280,40 @@ Decisiones de traducción:
   que pasar `verify_jwt: false`, si no el gateway de Supabase la bloquea
   antes de que corra el código (el resto sí exige JWT normal).
 
-### Pendiente de Paso 3
+### Pendiente de Paso 3: desplegar
 
-Aún faltan ~29 funciones por portar (capacitación/exámenes, inventario,
-correcciones/reasignaciones, seguridad/safety screening, alertas y cron
-jobs, leads públicos `createAliadaApplication`/`createLandingLead`,
-`registerClienta`, roles/cuentas admin, `migrationDryRunReport`). Continúo
-con la siguiente tanda cuando digas.
+El código de las 43 funciones está completo y en el repo, pero el conector
+MCP de Supabase sigue desconectado en esta sesión, así que **nada de esto
+está desplegado todavía** contra tu proyecto real (`ntsecphrxxdcovhuweeo`).
+En cuanto reconectes te aviso y las subo con `deploy_edge_function` una por
+una (o si prefieres, `supabase functions deploy` desde la CLI usando
+`supabase/functions/` — instrucciones en la sección "Opción B" arriba,
+adaptadas a Edge Functions).
 
-El conector MCP de Supabase se desconectó a mitad de esta tanda, así que
-**estas 15 funciones están escritas y en el repo pero todavía no desplegadas**
-contra tu proyecto real — en cuanto reconectes te aviso y las subo con
-`deploy_edge_function` (o si prefieres, `supabase functions deploy` desde la
-CLI usando `supabase/functions/`).
+Antes de desplegar hace falta configurar, en tu proyecto Supabase:
+- Variable de entorno `INTERNAL_FUNCTION_SECRET` (Project Settings → Edge
+  Functions → Secrets) — mismo propósito que en Base44: permite que
+  `ensureUpcomingGenerations`, `generateDailyAlerts`, `syncClientStatuses`,
+  `sendAliadaDailyDigest`/`sendAliadaDailySummary` corran vía cron sin un
+  usuario humano detrás (Paso 6).
+- `lookupAliadaByCode`, `createAliadaApplication`, `createLandingLead`,
+  `submitAliadaApplication`, `submitClientLead` deben desplegarse con
+  `--no-verify-jwt` (son públicas, sin sesión) — el resto sí exige JWT
+  normal.
+
+Nota conocida: `findOrInviteUser` (en `_shared/auth.ts`) usa
+`auth.admin.listUsers()` para buscar por email antes de invitar, que pagina
+de a 50 sin filtrar por email en el servidor. Funciona bien mientras la base
+de usuarios sea chica (como ahora); si crece antes de que lo revisemos, hay
+que cambiarlo a una consulta más dirigida.
 
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
-Van 2 de 10 pasos completos + Paso 3 en progreso (15/44 funciones escritas,
-pendientes de desplegar). Todavía faltan: terminar de portar y desplegar las
-Edge Functions restantes, reemplazar el cliente Base44 en el resto del
-frontend (`base44.entities.*`/`base44.functions.invoke` en ~65 archivos),
-migrar los datos reales, recrear los 5 workflows de cron, y reemplazar el
-envío de correos.
+Van 2 de 10 pasos completos + Paso 3 con todo el código escrito (43/43
+funciones), pendiente solo de desplegarse en cuanto el conector de Supabase
+reconecte. Todavía faltan: desplegar las Edge Functions, reemplazar el
+cliente Base44 en el resto del frontend (`base44.entities.*`/
+`base44.functions.invoke` en ~65 archivos — Paso 4), migrar los datos reales
+(Paso 5), recrear los 5 workflows de cron (Paso 6), y reemplazar el envío de
+correos (Paso 7 — todas las funciones que enviaban correo quedaron con un
+`console.log` marcado `TODO(paso 7)` en vez de `base44.integrations.Core.SendEmail`).

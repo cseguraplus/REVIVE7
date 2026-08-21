@@ -81,6 +81,24 @@ export async function getAuthUserMeta(svc: SupabaseClient, userId: string): Prom
   return { full_name: meta.full_name || null, phone: meta.phone || meta.whatsapp || null, email: data.user.email || null };
 }
 
+/**
+ * Ubica una cuenta por email o la crea invitándola por correo (Supabase Auth
+ * envía el magic link de invitación). Equivalente a
+ * `base44.asServiceRole.entities.User.filter({email})` + `base44.users.inviteUser(...)`.
+ * El trigger `on_auth_user_created` crea la fila en `public.profiles`
+ * automáticamente — no hace falta crearla a mano.
+ */
+export async function findOrInviteUser(svc: SupabaseClient, email: string): Promise<{ id: string; email: string | null } | null> {
+  const emailNorm = email.trim().toLowerCase();
+  const { data: found } = await svc.auth.admin.listUsers();
+  const existing = found?.users?.find((u) => (u.email || '').toLowerCase() === emailNorm);
+  if (existing) return { id: existing.id, email: existing.email ?? null };
+
+  const { data, error } = await svc.auth.admin.inviteUserByEmail(emailNorm);
+  if (error || !data?.user) return null;
+  return { id: data.user.id, email: data.user.email ?? null };
+}
+
 function roleOf(user: AppUser | null): string {
   return (user && user.app_role) || '';
 }
