@@ -307,13 +307,63 @@ de a 50 sin filtrar por email en el servidor. Funciona bien mientras la base
 de usuarios sea chica (como ahora); si crece antes de que lo revisemos, hay
 que cambiarlo a una consulta más dirigida.
 
+## Paso 4 — Cliente Base44 reemplazado en el resto del frontend
+
+En vez de tocar los ~59 archivos que llamaban a `base44.entities.*`/
+`base44.functions.invoke`/`base44.users.inviteUser`, reescribí
+`src/api/base44Client.js`: sigue exportando el mismo objeto `base44` con la
+misma forma, pero por dentro ahora habla con Supabase (Postgres + RLS, Edge
+Functions) en vez de con el SDK de Base44. Cero cambios en los archivos que
+lo consumen — mismo patrón que ya habíamos usado en `useBase44Query`/
+`useBase44Mutation` (Fase 4 original).
+
+- `base44.functions.invoke(name, params)` → `supabase.functions.invoke(name, { body: params })`,
+  con un traductor de errores para que `err.message` y
+  `err.response.data.error` sigan funcionando igual que con el SDK de Base44
+  (los ~26 call sites que leen `err?.response?.data?.error` no se tocaron).
+- `base44.entities.EntidadX.filter/list/get/create/update/delete` → tabla
+  Postgres real vía `supabase.from(tabla)`, con `TABLE_MAP` traduciendo cada
+  nombre de entidad Base44 a su tabla (`AliadaProfile` → `aliada_profiles`,
+  etc.) y `-created_date`/`-updated_date` (convención de ordenamiento de
+  Base44) traducidos a `created_at`/`updated_at` (convención de las
+  migraciones). RLS decide qué filas ve cada usuario — el frontend nunca usa
+  el rol de servicio.
+- `base44.entities.User` es un caso especial: `full_name`/`email` viven en
+  `auth.users.user_metadata`, no en `public.profiles`, y ningún usuario
+  puede leer eso de otro por RLS. Los paneles admin que listaban usuarios
+  (`AdminCapacitacion`, `AdminConfiguracion`, `AdminAuditoria`,
+  `InviteAliada`) ahora pasan por dos Edge Functions nuevas (no existían en
+  Base44, son puente de compatibilidad para este paso):
+  - `adminListUsers` — lista usuarios con su perfil fusionado (superadmin/operaciones).
+  - `inviteUser` — equivalente a `base44.users.inviteUser(email, role)`.
+- **El modelo legacy "vendedora" no se tocó** — `base44.entities.Clienta`/
+  `Compra`/`Vendedora`/`Kit`/`ContenidoDiario`/`ProgresoDiario` ahora lanzan
+  un error explícito ("es del modelo legacy... no se migró a Supabase") en
+  vez de fallar en silencio. Las pantallas que las usan
+  (`src/pages/vendedora/*`, `AdminVendedoras.jsx`, `AdminKits.jsx`,
+  `AdminContenido.jsx`) quedan tal como estaban — su destino es el retiro
+  (Fase 3 de la auditoría original), no la migración.
+- Verificado con `npm run typecheck` (127 errores preexistentes sin
+  relación con este cambio, ninguno nuevo — de hecho corrige uno) y
+  `npm run build` (compila limpio). No se pudo probar en navegador real en
+  esta sesión (sin `.env.local` con las credenciales del proyecto ni
+  Edge Functions desplegadas todavía — ver Paso 3).
+
+### Pendiente de Paso 4
+
+- Probar en un navegador real una vez `.env.local` tenga las credenciales y
+  las Edge Functions del Paso 3 estén desplegadas.
+- Decidir si conservar ambos duplicados públicos (`createAliadaApplication`/
+  `submitAliadaApplication`, `createLandingLead`/`submitClientLead`) o
+  retirar uno — pendiente desde el Paso 3.
+- El modelo legacy "vendedora" sigue sin plan de retiro ejecutado (solo
+  documentado) — decisión del usuario, no bloquea el resto de la migración.
+
 ## Qué falta (siguientes pasos de la migración, no parte de este paso)
 
-Van 2 de 10 pasos completos + Paso 3 con todo el código escrito (43/43
-funciones), pendiente solo de desplegarse en cuanto el conector de Supabase
-reconecte. Todavía faltan: desplegar las Edge Functions, reemplazar el
-cliente Base44 en el resto del frontend (`base44.entities.*`/
-`base44.functions.invoke` en ~65 archivos — Paso 4), migrar los datos reales
+Van 4 de 10 pasos con código completo (2 y 4 aplicados/verificados, 3
+escrito pero sin desplegar — ver "Pendiente de Paso 3" arriba). Todavía
+faltan: desplegar las Edge Functions (Paso 3), migrar los datos reales
 (Paso 5), recrear los 5 workflows de cron (Paso 6), y reemplazar el envío de
 correos (Paso 7 — todas las funciones que enviaban correo quedaron con un
 `console.log` marcado `TODO(paso 7)` en vez de `base44.integrations.Core.SendEmail`).

@@ -3,6 +3,9 @@ import { base44 } from "@/api/base44Client";
 
 /**
  * Envuelve base44.functions.invoke(functionName, params) en useMutation.
+ * Desde Paso 4 de la migración, base44.functions.invoke llama a una Supabase
+ * Edge Function (ver src/api/base44Client.js) — la forma que ve el resto de
+ * la app no cambió.
  * Uso: const { mutateAsync, isPending } = useBase44Mutation("registerSale");
  *      await mutateAsync(formValues);
  *
